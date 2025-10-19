@@ -2,10 +2,14 @@ package com.testPortal.test_management_api.testsuite;
 
 import com.testPortal.test_management_api.project.Project;
 
+import com.testPortal.test_management_api.testcase.TestCase;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Entity
 @Table(name = "test_suites")
@@ -30,7 +34,12 @@ public class TestSuite {
     @JoinColumn(name = "project_id", referencedColumnName = "id", nullable = false) // (2)
     private Project project;
 
-
+    @OneToMany(
+            mappedBy = "testSuite",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<TestCase> testCases;
 
 
 }
