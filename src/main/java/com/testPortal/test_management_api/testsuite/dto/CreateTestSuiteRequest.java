@@ -6,7 +6,6 @@ import lombok.Data;
 
 @Data
 public class CreateTestSuiteRequest {
-
     @NotBlank(message = "Test suite name cannot be blank.")
     @Size(min = 3, max = 100, message = "Test suite name must be between 3 and 100 characters.")
     private String name;
