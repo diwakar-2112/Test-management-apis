@@ -2,6 +2,7 @@ package com.testPortal.test_management_api.testcase;
 
 import com.testPortal.test_management_api.testcase.dto.CreateTestCaseRequest;
 import com.testPortal.test_management_api.testcase.dto.TestCaseResponse;
+import com.testPortal.test_management_api.testcase.dto.UpdateTestCaseRequest;
 import com.testPortal.test_management_api.testsuite.TestSuite;
 import com.testPortal.test_management_api.testsuite.TestSuiteRepository;
 import org.springframework.http.HttpStatus;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
@@ -55,6 +57,34 @@ public class TestCaseService {
                 .map(this::convertToResponse)
                 .collect(Collectors.toList());
 
+    }
+
+    public Optional<TestCaseResponse> updateTestCase(Integer caseId, UpdateTestCaseRequest request) {
+        // 1. Find the existing test case in the database by its unique ID.
+        return testCaseRepository.findById(caseId)
+                .map(existingTestCase -> { // .map() executes this code block if the test case is found.
+                    // 2. Update the properties of the found entity with the data from the request.
+                    existingTestCase.setTitle(request.getTitle());
+                    existingTestCase.setDescription(request.getDescription());
+                    existingTestCase.setSteps(request.getSteps());
+                    existingTestCase.setExpectedResult(request.getExpectedResult());
+
+                    // 3. Save the updated entity back to the database.
+                    TestCase updatedTestCase = testCaseRepository.save(existingTestCase);
+
+                    // 4. Convert the updated entity to a response DTO and return it.
+                    return convertToResponse(updatedTestCase);
+                });
+    }
+    public boolean deleteTestCase(Integer caseId) {
+        // 1. Check if a test case with the given ID exists in the database.
+        if (testCaseRepository.existsById(caseId)) {
+            // 2. If it exists, delete it.
+            testCaseRepository.deleteById(caseId);
+            return true;
+        }
+        // 3. If it does not exist, do nothing and return false.
+        return false;
     }
 
 
