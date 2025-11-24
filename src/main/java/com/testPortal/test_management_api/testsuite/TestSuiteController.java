@@ -39,14 +39,14 @@ public class TestSuiteController {
     }
     // PUT /api/testsuites/{suiteId}
     @PutMapping("/{suiteId}")
-    public TestSuiteResponse updateTestSuites(@PathVariable Integer suiteId,@Valid @RequestBody CreateTestSuiteRequest request){
-        return testSuiteService.updateTestSuite(suiteId,request).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"No Test Suite Found with id: "+suiteId));
+    public TestSuiteResponse updateTestSuite(@PathVariable Integer suiteId, @Valid @RequestBody CreateTestSuiteRequest request){
+        return testSuiteService.updateTestSuite(suiteId, request);
     }
 
     //Delete
     @DeleteMapping("/{suiteId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteSuite(@PathVariable Integer suiteId){
+    public void deleteTestSuite(@PathVariable Integer suiteId){
         testSuiteService.deleteTestSuite(suiteId);
     }
 

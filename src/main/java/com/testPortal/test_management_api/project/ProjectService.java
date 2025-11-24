@@ -167,6 +167,8 @@ package com.testPortal.test_management_api.project;
 import com.testPortal.test_management_api.project.dto.CreateProjectRequest;
 import com.testPortal.test_management_api.project.dto.ProjectResponse;
 import org.springframework.stereotype.Service;
+import com.testPortal.test_management_api.exception.ResourceNotFoundException; // Import the new exception
+
 
 import java.util.List;
 import java.util.Optional;
@@ -193,10 +195,12 @@ public class ProjectService {
     }
 
     //3.The findById
-    public Optional<ProjectResponse> findById(Integer id){
-        return projectRepository.findById(id) // This gets an Optional<Project> from the DB
-                .map(this::convertToResponse); // If it exists, convert it to a Response DTO
+    public ProjectResponse findById(Integer id){
+        Project project = projectRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + id));
+        return convertToResponse(project);
     }
+
 
     //4. Create
     public ProjectResponse create(CreateProjectRequest request){
@@ -206,22 +210,25 @@ public class ProjectService {
     }
 
     //5. Update
-    public Optional<ProjectResponse> update (Integer id, CreateProjectRequest request){
-        return projectRepository.findById(id) // first find the existing project in the DB
-                .map(existingProject->{ //if it is existed
-                    existingProject.setName(request.getName()); //update the fields
-                    existingProject.setDescription(request.getDescription());
-                    Project updatedProject = projectRepository.save(existingProject);
-                    return convertToResponse(updatedProject);
-                });
+    public ProjectResponse update(Integer id, CreateProjectRequest request){
+        Project existingProject = projectRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + id));
+
+        existingProject.setName(request.getName());
+        existingProject.setDescription(request.getDescription());
+        Project updatedProject = projectRepository.save(existingProject);
+        return convertToResponse(updatedProject);
     }
+
 
     //6. Delete
     public void delete(Integer id){
-        if(projectRepository.existsById(id)){
-            projectRepository.deleteById(id);
+        if(!projectRepository.existsById(id)){
+            throw new ResourceNotFoundException("Project not found with id: " + id);
         }
+        projectRepository.deleteById(id);
     }
+
 
 
 
