@@ -89,7 +89,12 @@
             <version>0.11.5</version>
             <scope>runtime</scope>
         </dependency>
-<!--        JWT Dependency-->
+
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
 
 	</dependencies>
 
