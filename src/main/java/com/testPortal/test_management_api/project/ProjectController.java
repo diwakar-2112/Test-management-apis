@@ -74,6 +74,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 //import org.springframework.web.server.ResponseStatusException;
+ import com.testPortal.test_management_api.common.PagedResponse;
 
 import java.util.List;
 
@@ -87,10 +88,20 @@ public class ProjectController {
         this.projectService = projectService;
     }
 
-    @GetMapping
-    public List<ProjectResponse> findAll(){
-        return projectService.findAll();
-    }
+//    @GetMapping
+//    public List<ProjectResponse> findAll(){
+//        return projectService.findAll();
+//    }
+    //with pagination
+@GetMapping
+public PagedResponse<ProjectResponse> findAll(
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size,
+        @RequestParam(defaultValue = "id") String sortBy,
+        @RequestParam(defaultValue = "asc") String sortDir
+) {
+    return projectService.findAll(page, size, sortBy, sortDir);
+}
 
     @GetMapping("/{id}")
     public ProjectResponse findById(@PathVariable Integer id){

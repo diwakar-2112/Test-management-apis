@@ -10,6 +10,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+ import com.testPortal.test_management_api.common.PagedResponse;
 
 
 
@@ -30,9 +31,20 @@ public class TestCaseController {
     }
 
     //GET
+//    @GetMapping
+//    public List<TestCaseResponse> getTestCaseForSuite(@PathVariable Integer suiteId){
+//        return testCaseService.getTestCaseForSuit(suiteId);
+//    }
+//    with pagination
     @GetMapping
-    public List<TestCaseResponse> getTestCaseForSuite(@PathVariable Integer suiteId){
-        return testCaseService.getTestCaseForSuit(suiteId);
+    public PagedResponse<TestCaseResponse> getTestCaseForSuite(
+            @PathVariable Integer suiteId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDir
+    ) {
+        return testCaseService.getTestCasesForSuite(suiteId, page, size, sortBy, sortDir);
     }
 
     @PutMapping("/{caseId}")

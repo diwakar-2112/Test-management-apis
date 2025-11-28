@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 
 import  org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+ import com.testPortal.test_management_api.common.PagedResponse;
 
 import java.util.List;
 
@@ -33,9 +34,14 @@ public class TestSuiteController {
 
     // GET /api/projects/{projectId}/testsuites
     @GetMapping
-    public List<TestSuiteResponse> getTestSuitesForProject(@PathVariable Integer projectId){
-        System.out.println(testSuiteService.getTestSuitesForProject(projectId));
-        return testSuiteService.getTestSuitesForProject(projectId);
+    public PagedResponse<TestSuiteResponse> getTestSuitesForProject(
+            @PathVariable Integer projectId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDir
+    ) {
+        return testSuiteService.getTestSuitesForProject(projectId, page, size, sortBy, sortDir);
     }
     // PUT /api/testsuites/{suiteId}
     @PutMapping("/{suiteId}")

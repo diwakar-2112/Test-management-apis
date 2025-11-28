@@ -12,6 +12,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+
+// for pagination
+import com.testPortal.test_management_api.common.PageInfo;
+ import com.testPortal.test_management_api.common.PagedResponse;
+ import org.springframework.data.domain.Page;
+ import org.springframework.data.domain.PageRequest;
+ import org.springframework.data.domain.Pageable;
+ import org.springframework.data.domain.Sort;
+
+
+
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -46,13 +57,43 @@ public class TestSuiteService {
      * Finds all Test Suites for a given Project ID.
      */
 
-    public List<TestSuiteResponse> getTestSuitesForProject(Integer projectId) {
+//    public List<TestSuiteResponse> getTestSuitesForProject(Integer projectId) {
+//        if (!projectRepository.existsById(projectId)) {
+//            throw new ResourceNotFoundException("Project not found with id: " + projectId);
+//        }
+//        return testSuiteRepository.findByProjectId(projectId).stream()
+//                .map(this::convertToResponse)
+//                .collect(Collectors.toList());
+//    }
+
+//    with pagination
+
+    public PagedResponse<TestSuiteResponse> getTestSuitesForProject(Integer projectId, int page, int size, String sortBy, String sortDir) {
         if (!projectRepository.existsById(projectId)) {
             throw new ResourceNotFoundException("Project not found with id: " + projectId);
         }
-        return testSuiteRepository.findByProjectId(projectId).stream()
+
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name())
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        // Use the new repository method that returns a Page
+        Page<TestSuite> suitesPage = testSuiteRepository.findByProjectId(projectId, pageable);
+
+        List<TestSuiteResponse> content = suitesPage.getContent().stream()
                 .map(this::convertToResponse)
                 .collect(Collectors.toList());
+
+        PageInfo pageInfo = new PageInfo(
+                suitesPage.getNumber(),
+                suitesPage.getTotalPages(),
+                suitesPage.getTotalElements(),
+                suitesPage.getSize()
+        );
+
+        return new PagedResponse<>(content, pageInfo);
     }
 
 

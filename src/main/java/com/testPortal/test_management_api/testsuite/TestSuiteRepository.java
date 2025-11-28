@@ -2,6 +2,8 @@ package com.testPortal.test_management_api.testsuite;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 @Repository
@@ -12,5 +14,8 @@ public interface TestSuiteRepository extends JpaRepository<TestSuite,Integer> {
     // where the 'project' field's 'id' property matches the given projectId.
     // SQL Equivalent: "SELECT * FROM test_suites WHERE project_id = ?"
     List<TestSuite> findByProjectId(Integer projectId);
+
+    // CHANGE: Return Page<TestSuite> and accept Pageable
+    Page<TestSuite> findByProjectId(Integer projectId, Pageable pageable);
 
 }

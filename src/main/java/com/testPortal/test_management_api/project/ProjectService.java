@@ -174,6 +174,17 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+
+//Pagination
+ import com.testPortal.test_management_api.common.PageInfo;
+ import com.testPortal.test_management_api.common.PagedResponse;
+ import org.springframework.data.domain.Page;
+ import org.springframework.data.domain.PageRequest;
+ import org.springframework.data.domain.Pageable;
+ import org.springframework.data.domain.Sort;
+
+
+
 @Service
 public class ProjectService {
 
@@ -187,13 +198,43 @@ public class ProjectService {
     // NOTE: The hardcoded list, the AtomicInteger, and the constructor are all GONE!
 
     //2.The findAll method is now a one-liner
-    public List<ProjectResponse> findAll(){
-        return projectRepository.findAll() //this gets all Project ENTITIES from the DB
-                .stream()
-                .map(this::convertToResponse) // Convert each Entity to a Response DTO
-                .collect(Collectors.toList());
-    }
+//    public List<ProjectResponse> findAll(){
+//        return projectRepository.findAll() //this gets all Project ENTITIES from the DB
+//                .stream()
+//                .map(this::convertToResponse) // Convert each Entity to a Response DTO
+//                .collect(Collectors.toList());
+//    }
 
+//    with pagination
+
+    public PagedResponse<ProjectResponse> findAll(int page, int size, String sortBy, String sortDir) {
+        // 1. Configure Sort
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name())
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        // 2. Create Pageable
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        // 3. Fetch from Repository (This returns the raw Entity Page)
+        Page<Project> projectsPage = projectRepository.findAll(pageable);
+
+        // 4. Convert Entities to DTOs
+        List<ProjectResponse> content = projectsPage.getContent().stream()
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
+
+        // 5. Create our Custom PageInfo
+        PageInfo pageInfo = new PageInfo(
+                projectsPage.getNumber(),
+                projectsPage.getTotalPages(),
+                projectsPage.getTotalElements(),
+                projectsPage.getSize()
+        );
+
+        // 6. Return the combined response
+        return new PagedResponse<>(content, pageInfo);
+    }
     //3.The findById
     public ProjectResponse findById(Integer id){
         Project project = projectRepository.findById(id)

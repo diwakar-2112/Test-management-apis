@@ -1,5 +1,6 @@
 package com.testPortal.test_management_api.testcase;
 
+import com.testPortal.test_management_api.exception.ResourceNotFoundException;
 import com.testPortal.test_management_api.testcase.dto.CreateTestCaseRequest;
 import com.testPortal.test_management_api.testcase.dto.TestCaseResponse;
 import com.testPortal.test_management_api.testcase.dto.UpdateTestCaseRequest;
@@ -13,6 +14,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
+
+//for pagination
+ import com.testPortal.test_management_api.common.PageInfo;
+ import com.testPortal.test_management_api.common.PagedResponse;
+ import org.springframework.data.domain.Page;
+ import org.springframework.data.domain.PageRequest;
+ import org.springframework.data.domain.Pageable;
+ import org.springframework.data.domain.Sort;
 
 
 @Service
@@ -46,19 +55,46 @@ public class TestCaseService {
     /**
      * Finds all TestCases for a given TestSuite ID.
      */
-    public List<TestCaseResponse> getTestCaseForSuit(Integer suiteId){
-        //check if the parent test suite existed
-        if(!testSuiteRepository.existsById(suiteId)){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Testsuite not found with the id:"+suiteId);
+//    public List<TestCaseResponse> getTestCaseForSuit(Integer suiteId){
+//        //check if the parent test suite existed
+//        if(!testSuiteRepository.existsById(suiteId)){
+//            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Testsuite not found with the id:"+suiteId);
+//        }
+//
+//        // 2. Use  custom repository method to find all the children.
+//        return  testCaseRepository.findByTestSuiteId(suiteId).stream()
+//                .map(this::convertToResponse)
+//                .collect(Collectors.toList());
+//
+//    }
+
+//    with pagination
+    public PagedResponse<TestCaseResponse> getTestCasesForSuite(Integer suiteId, int page, int size, String sortBy, String sortDir) {
+        if (!testSuiteRepository.existsById(suiteId)) {
+            throw new ResourceNotFoundException("TestSuite not found with id: " + suiteId);
         }
 
-        // 2. Use  custom repository method to find all the children.
-        return  testCaseRepository.findByTestSuiteId(suiteId).stream()
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name())
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<TestCase> testCasePage = testCaseRepository.findByTestSuiteId(suiteId, pageable);
+
+        List<TestCaseResponse> content = testCasePage.getContent().stream()
                 .map(this::convertToResponse)
                 .collect(Collectors.toList());
 
-    }
+        PageInfo pageInfo = new PageInfo(
+                testCasePage.getNumber(),
+                testCasePage.getTotalPages(),
+                testCasePage.getTotalElements(),
+                testCasePage.getSize()
+        );
 
+        return new PagedResponse<>(content, pageInfo);
+    }
     public Optional<TestCaseResponse> updateTestCase(Integer caseId, UpdateTestCaseRequest request) {
         // 1. Find the existing test case in the database by its unique ID.
         return testCaseRepository.findById(caseId)
