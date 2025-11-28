@@ -1,5 +1,6 @@
 package com.testPortal.test_management_api.testsuite;
 
+import com.testPortal.test_management_api.exception.ResourceNotFoundException;
 import com.testPortal.test_management_api.project.Project;
 import com.testPortal.test_management_api.project.ProjectRepository;
 import com.testPortal.test_management_api.project.dto.CreateProjectRequest;
@@ -10,6 +11,17 @@ import org.aspectj.weaver.ast.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+
+
+// for pagination
+import com.testPortal.test_management_api.common.PageInfo;
+ import com.testPortal.test_management_api.common.PagedResponse;
+ import org.springframework.data.domain.Page;
+ import org.springframework.data.domain.PageRequest;
+ import org.springframework.data.domain.Pageable;
+ import org.springframework.data.domain.Sort;
+
+
 
 import java.util.List;
 import java.util.Optional;
@@ -31,22 +43,13 @@ public class TestSuiteService {
      */
 
     public TestSuiteResponse createTestSuiteForProject(Integer projectId, CreateTestSuiteRequest request) {
-        // 1. Find the parent Project. If it doesn't exist, throw a 404 error.
-        Project project = projectRepository.findById(projectId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found with id:" + projectId));
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + projectId));
 
-        // 2. Create a new TestSuite entity.
         TestSuite newTestSuite = new TestSuite();
         newTestSuite.setName(request.getName());
-
-        // 3. THIS IS THE CRITICAL STEP: Set the parent project on the child.
-        // This is what creates the link (the foreign key relationship) in the database.
         newTestSuite.setProject(project);
-
-        // 4. Save the new TestSuite. JPA handles the rest.
         TestSuite savedTestSuite = testSuiteRepository.save(newTestSuite);
-
-
-        // 5. Convert to a response DTO and return.
         return convertToResponse(savedTestSuite);
     }
 
@@ -54,34 +57,60 @@ public class TestSuiteService {
      * Finds all Test Suites for a given Project ID.
      */
 
-    public List<TestSuiteResponse> getTestSuitesForProject(Integer projectId) {
+//    public List<TestSuiteResponse> getTestSuitesForProject(Integer projectId) {
+//        if (!projectRepository.existsById(projectId)) {
+//            throw new ResourceNotFoundException("Project not found with id: " + projectId);
+//        }
+//        return testSuiteRepository.findByProjectId(projectId).stream()
+//                .map(this::convertToResponse)
+//                .collect(Collectors.toList());
+//    }
+
+//    with pagination
+
+    public PagedResponse<TestSuiteResponse> getTestSuitesForProject(Integer projectId, int page, int size, String sortBy, String sortDir) {
         if (!projectRepository.existsById(projectId)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found with id:" + projectId);
+            throw new ResourceNotFoundException("Project not found with id: " + projectId);
         }
-        return testSuiteRepository.findByProjectId(projectId).stream().map(this::convertToResponse).collect(Collectors.toList());
+
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name())
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        // Use the new repository method that returns a Page
+        Page<TestSuite> suitesPage = testSuiteRepository.findByProjectId(projectId, pageable);
+
+        List<TestSuiteResponse> content = suitesPage.getContent().stream()
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
+
+        PageInfo pageInfo = new PageInfo(
+                suitesPage.getNumber(),
+                suitesPage.getTotalPages(),
+                suitesPage.getTotalElements(),
+                suitesPage.getSize()
+        );
+
+        return new PagedResponse<>(content, pageInfo);
     }
 
 
     //    update -> rename the existing testsuite
-    public Optional<TestSuiteResponse> updateTestSuite(Integer suiteId, CreateTestSuiteRequest request) {
+    public TestSuiteResponse updateTestSuite(Integer suiteId, CreateTestSuiteRequest request) {
+        TestSuite existingTestSuite = testSuiteRepository.findById(suiteId)
+                .orElseThrow(() -> new ResourceNotFoundException("TestSuite not found with id: " + suiteId));
 
-        // 1. Find the existing test suite by its own ID.
-        return testSuiteRepository.findById(suiteId)
-                .map(existingTestSuite -> {  //{id} if exits
-//                        update its properties
-                    existingTestSuite.setName(request.getName());
-
-                    //save it back to db
-                    TestSuite updatedSuite = testSuiteRepository.save(existingTestSuite);
-                    // convert it to dto and return
-                    return convertToResponse(updatedSuite);
-                });
+        existingTestSuite.setName(request.getName());
+        TestSuite updatedSuite = testSuiteRepository.save(existingTestSuite);
+        return convertToResponse(updatedSuite);
     }
 
-//    Delete
-    public  void deleteTestSuite(Integer suiteId){
+    //    Delete
+    public void deleteTestSuite(Integer suiteId){
         if(!testSuiteRepository.existsById(suiteId)){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"No test suite found with the id:"+suiteId);
+            throw new ResourceNotFoundException("TestSuite not found with id: " + suiteId);
         }
         testSuiteRepository.deleteById(suiteId);
     }

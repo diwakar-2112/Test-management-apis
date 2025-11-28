@@ -167,10 +167,23 @@ package com.testPortal.test_management_api.project;
 import com.testPortal.test_management_api.project.dto.CreateProjectRequest;
 import com.testPortal.test_management_api.project.dto.ProjectResponse;
 import org.springframework.stereotype.Service;
+import com.testPortal.test_management_api.exception.ResourceNotFoundException; // Import the new exception
+
 
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+
+//Pagination
+ import com.testPortal.test_management_api.common.PageInfo;
+ import com.testPortal.test_management_api.common.PagedResponse;
+ import org.springframework.data.domain.Page;
+ import org.springframework.data.domain.PageRequest;
+ import org.springframework.data.domain.Pageable;
+ import org.springframework.data.domain.Sort;
+
+
 
 @Service
 public class ProjectService {
@@ -185,18 +198,50 @@ public class ProjectService {
     // NOTE: The hardcoded list, the AtomicInteger, and the constructor are all GONE!
 
     //2.The findAll method is now a one-liner
-    public List<ProjectResponse> findAll(){
-        return projectRepository.findAll() //this gets all Project ENTITIES from the DB
-                .stream()
-                .map(this::convertToResponse) // Convert each Entity to a Response DTO
+//    public List<ProjectResponse> findAll(){
+//        return projectRepository.findAll() //this gets all Project ENTITIES from the DB
+//                .stream()
+//                .map(this::convertToResponse) // Convert each Entity to a Response DTO
+//                .collect(Collectors.toList());
+//    }
+
+//    with pagination
+
+    public PagedResponse<ProjectResponse> findAll(int page, int size, String sortBy, String sortDir) {
+        // 1. Configure Sort
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name())
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        // 2. Create Pageable
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        // 3. Fetch from Repository (This returns the raw Entity Page)
+        Page<Project> projectsPage = projectRepository.findAll(pageable);
+
+        // 4. Convert Entities to DTOs
+        List<ProjectResponse> content = projectsPage.getContent().stream()
+                .map(this::convertToResponse)
                 .collect(Collectors.toList());
+
+        // 5. Create our Custom PageInfo
+        PageInfo pageInfo = new PageInfo(
+                projectsPage.getNumber(),
+                projectsPage.getTotalPages(),
+                projectsPage.getTotalElements(),
+                projectsPage.getSize()
+        );
+
+        // 6. Return the combined response
+        return new PagedResponse<>(content, pageInfo);
+    }
+    //3.The findById
+    public ProjectResponse findById(Integer id){
+        Project project = projectRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + id));
+        return convertToResponse(project);
     }
 
-    //3.The findById
-    public Optional<ProjectResponse> findById(Integer id){
-        return projectRepository.findById(id) // This gets an Optional<Project> from the DB
-                .map(this::convertToResponse); // If it exists, convert it to a Response DTO
-    }
 
     //4. Create
     public ProjectResponse create(CreateProjectRequest request){
@@ -206,22 +251,25 @@ public class ProjectService {
     }
 
     //5. Update
-    public Optional<ProjectResponse> update (Integer id, CreateProjectRequest request){
-        return projectRepository.findById(id) // first find the existing project in the DB
-                .map(existingProject->{ //if it is existed
-                    existingProject.setName(request.getName()); //update the fields
-                    existingProject.setDescription(request.getDescription());
-                    Project updatedProject = projectRepository.save(existingProject);
-                    return convertToResponse(updatedProject);
-                });
+    public ProjectResponse update(Integer id, CreateProjectRequest request){
+        Project existingProject = projectRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + id));
+
+        existingProject.setName(request.getName());
+        existingProject.setDescription(request.getDescription());
+        Project updatedProject = projectRepository.save(existingProject);
+        return convertToResponse(updatedProject);
     }
+
 
     //6. Delete
     public void delete(Integer id){
-        if(projectRepository.existsById(id)){
-            projectRepository.deleteById(id);
+        if(!projectRepository.existsById(id)){
+            throw new ResourceNotFoundException("Project not found with id: " + id);
         }
+        projectRepository.deleteById(id);
     }
+
 
 
 
