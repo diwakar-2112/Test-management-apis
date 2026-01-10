@@ -18,4 +18,6 @@ public interface TestSuiteRepository extends JpaRepository<TestSuite,Integer> {
     // CHANGE: Return Page<TestSuite> and accept Pageable
     Page<TestSuite> findByProjectId(Integer projectId, Pageable pageable);
 
+    long countByProjectId(Integer projectId);
+
 }
