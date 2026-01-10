@@ -10,6 +10,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import com.testPortal.test_management_api.security.JwtTokenProvider; // Your package name
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -30,9 +33,9 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@Valid @RequestBody RegisterRequest request) {
+    public ResponseEntity<Map<String,String>> register(@Valid @RequestBody RegisterRequest request) {
         userService.registerUser(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body("User Registered Successfully");
+        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("message","User Registered Successfully"));
     }
 
     // --- NEW LOGIN ENDPOINT ---
@@ -52,7 +55,13 @@ public class AuthController {
         // Generate the JWT token.
         String jwt = tokenProvider.generateToken(authentication);
 
+        // 4. --- NEW: Get User Details ---
+        // The "Principal" is the UserDetails object returned by your CustomUserDetailsService
+        UserDetails  userDetails = (UserDetails) authentication.getPrincipal();
+        String userName = userDetails.getUsername();
+        String role = userDetails.getAuthorities().stream().findFirst().get().getAuthority();
+
         // Return the token in the response.
-        return ResponseEntity.ok(new LoginResponse(jwt));
+        return ResponseEntity.ok(new LoginResponse(jwt,userName,role));
     }
 }
