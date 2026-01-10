@@ -15,4 +15,6 @@ public interface TestCaseRepository extends JpaRepository<TestCase, Integer> {
     // SQL Equivalent: "SELECT * FROM test_cases WHERE test_suite_id = ?"
     List<TestCase> findByTestSuiteId(Integer testSuiteId);
     Page<TestCase> findByTestSuiteId(Integer testSuiteId, Pageable pageable);
+
+    long countByTestSuiteProjectId(Integer projectId);
 }

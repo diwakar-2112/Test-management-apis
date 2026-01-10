@@ -168,7 +168,9 @@ import com.testPortal.test_management_api.project.dto.CreateProjectRequest;
 import com.testPortal.test_management_api.project.dto.ProjectResponse;
 import org.springframework.stereotype.Service;
 import com.testPortal.test_management_api.exception.ResourceNotFoundException; // Import the new exception
-
+import com.testPortal.test_management_api.testcase.TestCaseRepository;
+import com.testPortal.test_management_api.testrun.TestRunRepository;
+import com.testPortal.test_management_api.testsuite.TestSuiteRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -191,8 +193,15 @@ public class ProjectService {
     //1.Inject the repository instead of using a list.
     private final ProjectRepository  projectRepository;
 
-    public ProjectService(ProjectRepository projectRepository){
+    private final TestSuiteRepository testSuiteRepository;
+    private final TestCaseRepository testCaseRepository;
+    private final TestRunRepository testRunRepository;
+
+    public ProjectService(ProjectRepository projectRepository,TestSuiteRepository testSuiteRepository,TestCaseRepository testCaseRepository,TestRunRepository testRunRepository){
         this.projectRepository=projectRepository;
+        this.testSuiteRepository=testSuiteRepository;
+        this.testCaseRepository=testCaseRepository;
+        this.testRunRepository=testRunRepository;
     }
 
     // NOTE: The hardcoded list, the AtomicInteger, and the constructor are all GONE!
@@ -282,7 +291,16 @@ public class ProjectService {
     // --- Helper Methods for DTO/Entity Conversion ---
 
     private ProjectResponse convertToResponse(Project project) {
-        return new ProjectResponse(project.getId(), project.getName(), project.getDescription());
+
+        //get id of current project
+        Integer projectId =project.getId();
+
+        //call repository methods
+        long testSuiteCount = testSuiteRepository.countByProjectId(projectId);
+        long testCaseCount = testCaseRepository.countByTestSuiteProjectId(projectId);
+        long testRunCount = testRunRepository.countByProjectId(projectId);
+
+        return new ProjectResponse(project.getId(), project.getName(), project.getDescription(),testSuiteCount,testCaseCount,testRunCount);
     }
 
     private Project convertToEntity(CreateProjectRequest request) {
