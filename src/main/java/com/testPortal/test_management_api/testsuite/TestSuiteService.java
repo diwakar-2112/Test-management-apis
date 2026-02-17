@@ -121,7 +121,10 @@ public class TestSuiteService {
         return new TestSuiteResponse(
                 testSuite.getId(),
                 testSuite.getName(),
-                testSuite.getProject().getId() // Get the ID from the nested project object
+                testSuite.getProject().getId(),// Get the ID from the nested project object,
+                testSuite.getCreatedAt(),
+                testSuite.getUpdatedAt()
+
         );
     }
 
