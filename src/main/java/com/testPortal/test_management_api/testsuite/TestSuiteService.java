@@ -96,6 +96,12 @@ public class TestSuiteService {
         return new PagedResponse<>(content, pageInfo);
     }
 
+    public List<TestSuiteResponse> getAllTestSuitesForProject(Integer projectId){
+        if(!projectRepository.existsById(projectId)){
+            throw new ResourceNotFoundException("Project not found with id: "+projectId);
+        }
+        return testSuiteRepository.findByProjectId(projectId).stream().map(this::convertToResponse).collect(Collectors.toList());
+    }
 
     //    update -> rename the existing testsuite
     public TestSuiteResponse updateTestSuite(Integer suiteId, CreateTestSuiteRequest request) {
@@ -108,11 +114,15 @@ public class TestSuiteService {
     }
 
     //    Delete
-    public void deleteTestSuite(Integer suiteId){
-        if(!testSuiteRepository.existsById(suiteId)){
+    public TestSuiteResponse deleteTestSuite(Integer suiteId) {
+        if (!testSuiteRepository.existsById(suiteId)) {
             throw new ResourceNotFoundException("TestSuite not found with id: " + suiteId);
         }
+        TestSuite testSuiteTodelte = testSuiteRepository.findById(suiteId).orElseThrow(() -> new ResourceNotFoundException("Test Suite with id:" + suiteId + " not exist"));
+        // 2. Before deleting, convert the entity to the DTO we want to return.
+        TestSuiteResponse response = convertToResponse(testSuiteTodelte);
         testSuiteRepository.deleteById(suiteId);
+        return response;
     }
 
     // --- Helper Method for DTO Conversion ---

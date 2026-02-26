@@ -7,6 +7,7 @@ import com.testPortal.test_management_api.testsuite.dto.TestSuiteResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 
+import org.springframework.http.ResponseEntity;
 import  org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
  import com.testPortal.test_management_api.common.PagedResponse;
@@ -34,14 +35,24 @@ public class TestSuiteController {
 
     // GET /api/projects/{projectId}/testsuites
     @GetMapping
-    public PagedResponse<TestSuiteResponse> getTestSuitesForProject(
+    public ResponseEntity<?> getTestSuitesForProject(
             @PathVariable Integer projectId,
+            @RequestParam(defaultValue = "false") boolean isAll,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDir
     ) {
-        return testSuiteService.getTestSuitesForProject(projectId, page, size, sortBy, sortDir);
+        if(isAll){
+            List<TestSuiteResponse> allSuites = testSuiteService.getAllTestSuitesForProject(projectId);
+            return ResponseEntity.ok(allSuites);
+        }
+
+        else{
+            PagedResponse<TestSuiteResponse> pagedSuites = testSuiteService.getTestSuitesForProject(projectId, page, size, sortBy, sortDir);
+            // This is also valid because the method's return type is ResponseEntity.
+            return ResponseEntity.ok(pagedSuites);
+        }
     }
     // PUT /api/testsuites/{suiteId}
     @PutMapping("/{suiteId}")
@@ -51,9 +62,9 @@ public class TestSuiteController {
 
     //Delete
     @DeleteMapping("/{suiteId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteTestSuite(@PathVariable Integer suiteId){
-        testSuiteService.deleteTestSuite(suiteId);
+//    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public TestSuiteResponse  deleteTestSuite(@PathVariable Integer suiteId){
+      return  testSuiteService.deleteTestSuite(suiteId);
     }
 
 
