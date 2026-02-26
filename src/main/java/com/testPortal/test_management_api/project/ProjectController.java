@@ -73,7 +73,8 @@ import com.testPortal.test_management_api.project.dto.ProjectResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
+//import org.springframework.web.server.ResponseStatusException;
+ import com.testPortal.test_management_api.common.PagedResponse;
 
 import java.util.List;
 
@@ -87,18 +88,29 @@ public class ProjectController {
         this.projectService = projectService;
     }
 
-    @GetMapping
-    public List<ProjectResponse> findAll(){
-        return projectService.findAll();
-    }
+//    @GetMapping
+//    public List<ProjectResponse> findAll(){
+//        return projectService.findAll();
+//    }
+    //with pagination
+@GetMapping
+public PagedResponse<ProjectResponse> findAll(
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size,
+        @RequestParam(defaultValue = "id") String sortBy,
+        @RequestParam(defaultValue = "asc") String sortDir
+) {
+    return projectService.findAll(page, size, sortBy, sortDir);
+}
 
     @GetMapping("/{id}")
     public ProjectResponse findById(@PathVariable Integer id){
-        return projectService.findById(id).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Project not found with id:"+ id));
+        return projectService.findById(id);
     }
 
     // The @Valid annotation is NEW. It tells Spring to check the validation rules
     // we defined in the CreateProjectRequest DTO.
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ProjectResponse create(@Valid @RequestBody CreateProjectRequest request){
@@ -107,10 +119,10 @@ public class ProjectController {
 
     @PutMapping("/{id}")
     public ProjectResponse update(@PathVariable Integer id, @Valid @RequestBody CreateProjectRequest request){
-        return projectService.update(id,request).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND,"Project not found with id:"+id));
+        return projectService.update(id, request);
     }
-
     @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Integer id){
         projectService.delete(id);
     }

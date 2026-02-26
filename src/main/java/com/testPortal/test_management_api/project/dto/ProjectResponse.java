@@ -13,4 +13,9 @@ public class ProjectResponse {
     private Integer id;
     private String name;
     private String description;
+
+    //new fields
+    private long testSuiteCount;
+    private long testCaseCount;
+    private long testRunCount;
 }
