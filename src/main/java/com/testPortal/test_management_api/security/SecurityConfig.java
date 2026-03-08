@@ -80,7 +80,7 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
 
         // Allow requests from your Angular App
-        configuration.setAllowedOrigins(List.of("http://localhost:4200","https://test-management-n3vjxx7sa-diwakar-2112s-projects.vercel.app/"));
+        configuration.setAllowedOrigins(List.of("http://localhost:4200","https://test-management-n3vjxx7sa-diwakar-2112s-projects.vercel.app/","https://69ad2c73547b70df8e1305b5--qa-test-lodge.netlify.app/"));
 
         // Allow these HTTP methods
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
