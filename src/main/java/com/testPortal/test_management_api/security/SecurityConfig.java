@@ -59,7 +59,9 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         // Allow Login/Register and H2 Console
-                        .requestMatchers("/h2-ui/**", "/api/auth/**").permitAll()
+                        .requestMatchers("/h2-ui/**", "/api/auth/**", "/v3/api-docs/**",     // <--- ADDED: OpenAPI JSON data
+                                "/swagger-ui/**",      // <--- ADDED: Swagger UI HTML pages
+                                "/swagger-ui.html" ).permitAll()
                         // Protect everything else
                         .anyRequest().authenticated()
                 )
