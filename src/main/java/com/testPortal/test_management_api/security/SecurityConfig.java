@@ -59,7 +59,9 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         // Allow Login/Register and H2 Console
-                        .requestMatchers("/h2-ui/**", "/api/auth/**").permitAll()
+                        .requestMatchers("/h2-ui/**", "/api/auth/**", "/v3/api-docs/**",     // <--- ADDED: OpenAPI JSON data
+                                "/swagger-ui/**",      // <--- ADDED: Swagger UI HTML pages
+                                "/swagger-ui.html" ).permitAll()
                         // Protect everything else
                         .anyRequest().authenticated()
                 )
@@ -80,7 +82,7 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
 
         // Allow requests from your Angular App
-        configuration.setAllowedOrigins(List.of("http://localhost:4200","https://test-management-n3vixx7sa-diwakar-2112s-projects.vercel.app"));
+        configuration.setAllowedOrigins(List.of("http://localhost:4200","https://test-management-n3vjxx7sa-diwakar-2112s-projects.vercel.app/","https://69ad2c73547b70df8e1305b5--qa-test-lodge.netlify.app/"));
 
         // Allow these HTTP methods
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));

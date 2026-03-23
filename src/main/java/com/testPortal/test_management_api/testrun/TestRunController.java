@@ -1,9 +1,7 @@
 package com.testPortal.test_management_api.testrun;
 
-import com.testPortal.test_management_api.testrun.dto.CreateTestRunRequest;
-import com.testPortal.test_management_api.testrun.dto.TestRunResponse;
-import com.testPortal.test_management_api.testrun.dto.TestResultResponse;
-import com.testPortal.test_management_api.testrun.dto.UpdateTestResultRequest;
+import com.testPortal.test_management_api.common.PagedResponse;
+import com.testPortal.test_management_api.testrun.dto.*;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -38,6 +36,17 @@ public class TestRunController {
     @PutMapping("/results/{resultId}")
     public TestResultResponse updateResult(@PathVariable Integer resultId, @Valid @RequestBody UpdateTestResultRequest request) {
         return testRunService.updateTestResult(resultId, request);
+    }
+
+    @GetMapping
+    public PagedResponse<TestRunResponse> getAllTestRuns(
+            TestRunSearchCriteria searchCriteria,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String soryBy,
+            @RequestParam(defaultValue = "desc") String sortDir
+    ){
+        return testRunService.getAllTestRuns(searchCriteria,page,size,soryBy,sortDir);
     }
 }
 
