@@ -1,5 +1,7 @@
 package com.testPortal.test_management_api.auth; // Your package name
 
+import com.testPortal.test_management_api.security.CustomUserDetailsService;
+import com.testPortal.test_management_api.user.User;
 import com.testPortal.test_management_api.user.UserService; // Your package name
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -23,13 +25,19 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider tokenProvider;
 
+    ///  for Google authentication
+    private final GoogleAuthService googleAuthService;
+    private final CustomUserDetailsService customUserDetailsService;
+
     // --- UPDATED CONSTRUCTOR TO ACCEPT NEW DEPENDENCIES ---
     public AuthController(UserService userService,
                           AuthenticationManager authenticationManager,
-                          JwtTokenProvider tokenProvider) {
+                          JwtTokenProvider tokenProvider,GoogleAuthService googleAuthService, CustomUserDetailsService customUserDetailsService) {
         this.userService = userService;
         this.authenticationManager = authenticationManager;
         this.tokenProvider = tokenProvider;
+        this.googleAuthService = googleAuthService;
+        this.customUserDetailsService = customUserDetailsService;
     }
 
     @PostMapping("/register")
@@ -64,4 +72,30 @@ public class AuthController {
         // Return the token in the response.
         return ResponseEntity.ok(new LoginResponse(jwt,userName,role));
     }
+
+    @PostMapping("/google")
+    public ResponseEntity<LoginResponse> googleLogin(@Valid @RequestBody GoogleLoginRequest request){
+        // 1. Verify the Google token and get our DB User
+        User user = googleAuthService.verifyGoogleTokenAndProcessUser(request.getIdToken());
+
+        // 2. Load their UserDetails so Spring Security can use it
+        UserDetails userDetails = customUserDetailsService.loadUserByUsername(user.getUsername());
+
+        // 3. Create an Authentication object (bypassing the password check since Google authenticated them)
+        Authentication authentication= new UsernamePasswordAuthenticationToken(userDetails,null,userDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        //4 Generate standard jwt token
+        String jwt = tokenProvider.generateToken(authentication);
+
+        //5 Extract userName and role
+        String userName = userDetails.getUsername();
+        String role = userDetails.getAuthorities().stream().findFirst().get().getAuthority();
+
+        //5 Return the token
+        return ResponseEntity.ok(new LoginResponse(jwt,userName,role));
+    }
+
+
+
 }
