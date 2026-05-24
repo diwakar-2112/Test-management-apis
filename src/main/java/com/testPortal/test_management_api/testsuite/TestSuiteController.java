@@ -8,11 +8,13 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import  org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
  import com.testPortal.test_management_api.common.PagedResponse;
 
 import java.util.List;
+
 
 
 @RestController
@@ -29,6 +31,7 @@ public class TestSuiteController {
     //// POST /api/projects/{projectId}/testsuites
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasRole('ADMIN')")
    public TestSuiteResponse createTestSuite(@PathVariable Integer projectId,@Valid @RequestBody CreateTestSuiteRequest request){
         return testSuiteService.createTestSuiteForProject(projectId,request);
     }
@@ -56,12 +59,14 @@ public class TestSuiteController {
     }
     // PUT /api/testsuites/{suiteId}
     @PutMapping("/{suiteId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public TestSuiteResponse updateTestSuite(@PathVariable Integer suiteId, @Valid @RequestBody CreateTestSuiteRequest request){
         return testSuiteService.updateTestSuite(suiteId, request);
     }
 
     //Delete
     @DeleteMapping("/{suiteId}")
+    @PreAuthorize("hasRole('ADMIN')")
 //    @ResponseStatus(HttpStatus.NO_CONTENT)
     public TestSuiteResponse  deleteTestSuite(@PathVariable Integer suiteId){
       return  testSuiteService.deleteTestSuite(suiteId);
