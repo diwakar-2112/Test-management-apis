@@ -1,7 +1,6 @@
 package com.testPortal.test_management_api.testsuite.dto;
 
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.Data;
 import java.time.LocalDateTime;
 
@@ -12,7 +11,7 @@ public class TestSuiteResponse {
     private Integer id;
     private String name;
     private Integer projectId; // We include the parent project's ID for context.
-
+    private long totalTestCases;
 
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -20,4 +19,5 @@ public class TestSuiteResponse {
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updatedAt;
+
 }
