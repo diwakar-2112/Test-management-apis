@@ -12,7 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-
+import com.testPortal.test_management_api.testcase.TestCaseRepository;
 // for pagination
 import com.testPortal.test_management_api.common.PageInfo;
  import com.testPortal.test_management_api.common.PagedResponse;
@@ -32,10 +32,12 @@ public class TestSuiteService {
 
     private final TestSuiteRepository testSuiteRepository;
     private final ProjectRepository projectRepository;
+    private final TestCaseRepository testCaseRepository;
 
-    public TestSuiteService(TestSuiteRepository testSuiteRepository, ProjectRepository projectRepository) {
+    public TestSuiteService(TestSuiteRepository testSuiteRepository, ProjectRepository projectRepository,TestCaseRepository testCaseRepository) {
         this.testSuiteRepository = testSuiteRepository;
         this.projectRepository = projectRepository;
+        this.testCaseRepository = testCaseRepository;
     }
 
     /**
@@ -128,10 +130,12 @@ public class TestSuiteService {
     // --- Helper Method for DTO Conversion ---
 
     private TestSuiteResponse convertToResponse(TestSuite testSuite) {
+        long testCaseCount = testCaseRepository.countByTestSuiteId(testSuite.getId());
         return new TestSuiteResponse(
                 testSuite.getId(),
                 testSuite.getName(),
                 testSuite.getProject().getId(),// Get the ID from the nested project object,
+                testCaseCount,
                 testSuite.getCreatedAt(),
                 testSuite.getUpdatedAt()
 
