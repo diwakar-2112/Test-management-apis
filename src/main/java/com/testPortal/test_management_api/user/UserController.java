@@ -21,7 +21,7 @@ public class UserController {
      * Get api/users/lookup
      */
     @GetMapping("/lookup")
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
     public  List<UserLookupResponse>getAllUsersForLookup(){
         return userService.getAllUserLookups();
     }

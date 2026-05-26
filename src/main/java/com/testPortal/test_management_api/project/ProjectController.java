@@ -95,11 +95,15 @@ public class ProjectController {
     //with pagination
 @GetMapping
 public PagedResponse<ProjectResponse> findAll(
+        @RequestParam(defaultValue = "false") boolean isAll,
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size,
         @RequestParam(defaultValue = "id") String sortBy,
         @RequestParam(defaultValue = "asc") String sortDir
 ) {
+        if(isAll){
+            return projectService.getAllProjects();
+        }
     return projectService.findAll(page, size, sortBy, sortDir);
 }
 
