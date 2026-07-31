@@ -37,7 +37,7 @@ public class TestRunController {
     }
 
     @PutMapping("/results/{resultId}")
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
     public TestResultResponse updateResult(@PathVariable Integer resultId, @Valid @RequestBody UpdateTestResultRequest request) {
         return testRunService.updateTestResult(resultId, request);
     }

@@ -8,6 +8,7 @@ import com.testPortal.test_management_api.testrun.dto.*;
 import com.testPortal.test_management_api.user.User;
 import com.testPortal.test_management_api.user.UserRepository;
 import org.aspectj.weaver.ast.Test;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -153,7 +154,15 @@ public class TestRunService {
 
     public PagedResponse<TestRunResponse> getAllTestRuns(TestRunSearchCriteria criteria,int page,int size,String sortBy,String sortDir){
 
+        // check who is making the request
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        User currentUser = userRepository.findByUsername(currentUsername).orElseThrow(()->new RuntimeException(("User Not Found")));
 
+        //if ths user is a TESTER  we OVERWRITE whatever assigneeId they passed in the URL.
+        // We force it to be their own ID
+        if("ROLE_TESTER".equals(currentUser.getRole())){
+            criteria.setAssigneeId(currentUser.getId());
+        }
         // 1. Create the Sort and Pageable objects
         Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name())
                 ? Sort.by(sortBy).ascending()

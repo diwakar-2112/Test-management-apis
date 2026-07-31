@@ -166,6 +166,7 @@ package com.testPortal.test_management_api.project;
 
 import com.testPortal.test_management_api.project.dto.CreateProjectRequest;
 import com.testPortal.test_management_api.project.dto.ProjectResponse;
+import com.testPortal.test_management_api.user.User;
 import org.springframework.stereotype.Service;
 import com.testPortal.test_management_api.exception.ResourceNotFoundException; // Import the new exception
 import com.testPortal.test_management_api.testcase.TestCaseRepository;
@@ -185,6 +186,8 @@ import java.util.stream.Collectors;
  import org.springframework.data.domain.Pageable;
  import org.springframework.data.domain.Sort;
 
+import org.springframework.security.core.context.SecurityContextHolder;
+import com.testPortal.test_management_api.user.UserRepository;
 
 
 @Service
@@ -196,12 +199,14 @@ public class ProjectService {
     private final TestSuiteRepository testSuiteRepository;
     private final TestCaseRepository testCaseRepository;
     private final TestRunRepository testRunRepository;
+    private final UserRepository userRepository;
 
-    public ProjectService(ProjectRepository projectRepository,TestSuiteRepository testSuiteRepository,TestCaseRepository testCaseRepository,TestRunRepository testRunRepository){
+    public ProjectService(ProjectRepository projectRepository,TestSuiteRepository testSuiteRepository,TestCaseRepository testCaseRepository,TestRunRepository testRunRepository,UserRepository userRepository){
         this.projectRepository=projectRepository;
         this.testSuiteRepository=testSuiteRepository;
         this.testCaseRepository=testCaseRepository;
         this.testRunRepository=testRunRepository;
+        this.userRepository=userRepository;
     }
 
     // NOTE: The hardcoded list, the AtomicInteger, and the constructor are all GONE!
@@ -217,23 +222,39 @@ public class ProjectService {
 //    with pagination
 
     public PagedResponse<ProjectResponse> findAll(int page, int size, String sortBy, String sortDir) {
-        // 1. Configure Sort
+
+       // 1. Get current user
+        String currentUsername  = SecurityContextHolder.getContext().getAuthentication().getName();
+        User currentUser = userRepository.findByUsername(currentUsername).orElseThrow(()-> new RuntimeException(("User Not Found")));
+
+
+        // 2. Configure Sort
         Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name())
                 ? Sort.by(sortBy).ascending()
                 : Sort.by(sortBy).descending();
 
-        // 2. Create Pageable
+        // 3. Create Pageable
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        // 3. Fetch from Repository (This returns the raw Entity Page)
-        Page<Project> projectsPage = projectRepository.findAll(pageable);
+        // 4. Fetch from Repository (This returns the raw Entity Page)
+        // Page<Project> projectsPage = projectRepository.findAll(pageable);
+        Page<Project> projectsPage;
 
-        // 4. Convert Entities to DTOs
+        //6. Security Routing
+        if("ROLE_ADMIN".equals(currentUser.getRole())){
+            // Admins get to see everything
+            projectsPage = projectRepository.findAll(pageable);
+        }else{
+            // Testers ONLY see projects they have test runs in
+            projectsPage = projectRepository.findProjectByAssigneeId(currentUser.getId(),pageable);
+        }
+
+        // 6. Convert Entities to DTOs
         List<ProjectResponse> content = projectsPage.getContent().stream()
                 .map(this::convertToResponse)
                 .collect(Collectors.toList());
 
-        // 5. Create our Custom PageInfo
+        // 7. Create our Custom PageInfo
         PageInfo pageInfo = new PageInfo(
                 projectsPage.getNumber(),
                 projectsPage.getTotalPages(),
@@ -241,9 +262,40 @@ public class ProjectService {
                 projectsPage.getSize()
         );
 
-        // 6. Return the combined response
+        // 8. Return the combined response
         return new PagedResponse<>(content, pageInfo);
     }
+
+    public PagedResponse<ProjectResponse> getAllProjects(){
+        // 1. Get current user
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        User currentUser = userRepository.findByUsername(currentUsername)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        List<Project> projects;
+
+        // 2. SECURITY ROUTING
+        if ("ROLE_ADMIN".equals(currentUser.getRole())) {
+            // Admins get all projects
+            projects = projectRepository.findAll();
+        } else {
+            // Testers get only their projects (Requires Step 2 from our previous chat!)
+            projects = projectRepository.findProjectsByAssigneeIdList(currentUser.getId());
+        }
+        List<ProjectResponse> content = projects.stream()
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
+
+        // 2. Wrap the complete list inside your PageInfo object!
+        PageInfo pageInfo = new PageInfo(
+                0, // Current Page is 0
+                1, // Total Pages is 1 (since everything is on this page)
+                content.size(), // Total Elements
+                content.size()  // Size of this page
+        );
+        // 3. Return the standard PagedResponse!
+        return new PagedResponse<>(content,pageInfo);
+        }
+
     //3.The findById
     public ProjectResponse findById(Integer id){
         Project project = projectRepository.findById(id)
