@@ -57,7 +57,7 @@ package com.testPortal.test_management_api.project;
 //Phase 3 -> to add testsuites in Project
 import com.testPortal.test_management_api.testsuite.TestSuite; // Import the TestSuite entity
 import com.fasterxml.jackson.annotation.JsonManagedReference; // We will use this later
-
+import com.testPortal.test_management_api.testrun.TestRun;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -93,6 +93,11 @@ public class Project {
     // 'orphanRemoval = true' is a companion to cascade. It ensures that if we
     // remove a TestSuite from this list, it will be deleted from the database.
 
+    // This perfectly cascades down to Suites (and then down to Cases)
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TestSuite> testSuites; // (1)
+
+    // This will perfectly cascade down to Test Runs (and then down to Test Results)
+    @OneToMany(mappedBy = "project",cascade = CascadeType.ALL,orphanRemoval = true)
+    private List<TestRun> testRuns;
 }

@@ -1,16 +1,28 @@
 package com.testPortal.test_management_api.testrun;
 
+
 import com.testPortal.test_management_api.exception.ResourceNotFoundException; // Import!
 import com.testPortal.test_management_api.testsuite.TestSuite;
 import com.testPortal.test_management_api.testsuite.TestSuiteRepository;
 import com.testPortal.test_management_api.testrun.dto.*;
 import com.testPortal.test_management_api.user.User;
 import com.testPortal.test_management_api.user.UserRepository;
+import org.aspectj.weaver.ast.Test;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import com.testPortal.test_management_api.common.PageInfo;
+import com.testPortal.test_management_api.common.PagedResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 
 @Service
 public class TestRunService {
@@ -138,5 +150,45 @@ public class TestRunService {
                 testResult.getSteps(),
                 testResult.getExpectedResult()
         );
+    }
+
+    public PagedResponse<TestRunResponse> getAllTestRuns(TestRunSearchCriteria criteria,int page,int size,String sortBy,String sortDir){
+
+        // check who is making the request
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        User currentUser = userRepository.findByUsername(currentUsername).orElseThrow(()->new RuntimeException(("User Not Found")));
+
+        //if ths user is a TESTER  we OVERWRITE whatever assigneeId they passed in the URL.
+        // We force it to be their own ID
+        if("ROLE_TESTER".equals(currentUser.getRole())){
+            criteria.setAssigneeId(currentUser.getId());
+        }
+        // 1. Create the Sort and Pageable objects
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name())
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page,size,sort);
+
+        //2. Dynamic specification
+        Specification<TestRun> spec = TestRunSpecifications.withDynamicQuery(criteria);
+
+        //3. Fetch the filtered and paginated data from db
+        Page<TestRun> testRunPage = testRunRepository.findAll(spec,pageable);
+
+        //4. Convert Entities to DTOs
+        List<TestRunResponse> content = testRunPage.getContent().stream()
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
+
+        //5. Package into custom Paged Response
+        PageInfo pageInfo = new PageInfo(
+                testRunPage.getNumber(),
+                testRunPage.getTotalPages(),
+                testRunPage.getTotalElements(),
+                testRunPage.getSize()
+        );
+
+        return new PagedResponse<>(content,pageInfo);
+
     }
 }

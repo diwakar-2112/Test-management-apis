@@ -72,10 +72,10 @@ import com.testPortal.test_management_api.project.dto.CreateProjectRequest;
 import com.testPortal.test_management_api.project.dto.ProjectResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 //import org.springframework.web.server.ResponseStatusException;
  import com.testPortal.test_management_api.common.PagedResponse;
-
 import java.util.List;
 
 @RestController
@@ -95,11 +95,15 @@ public class ProjectController {
     //with pagination
 @GetMapping
 public PagedResponse<ProjectResponse> findAll(
+        @RequestParam(defaultValue = "false") boolean isAll,
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size,
         @RequestParam(defaultValue = "id") String sortBy,
         @RequestParam(defaultValue = "asc") String sortDir
 ) {
+        if(isAll){
+            return projectService.getAllProjects();
+        }
     return projectService.findAll(page, size, sortBy, sortDir);
 }
 
@@ -113,15 +117,18 @@ public PagedResponse<ProjectResponse> findAll(
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasRole('ADMIN')")
     public ProjectResponse create(@Valid @RequestBody CreateProjectRequest request){
         return projectService.create(request);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ProjectResponse update(@PathVariable Integer id, @Valid @RequestBody CreateProjectRequest request){
         return projectService.update(id, request);
     }
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Integer id){
         projectService.delete(id);

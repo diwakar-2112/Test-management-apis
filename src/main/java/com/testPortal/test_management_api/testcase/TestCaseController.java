@@ -5,6 +5,7 @@ import com.testPortal.test_management_api.testcase.dto.TestCaseResponse;
 import com.testPortal.test_management_api.testcase.dto.UpdateTestCaseRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.server.ResponseStatusException;
 
 import org.springframework.web.bind.annotation.*;
@@ -26,6 +27,7 @@ public class TestCaseController {
     //POST /api/testsuites/{suiteId}/testcase
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasRole('ADMIN')")
     public TestCaseResponse createTestCase(@PathVariable Integer suiteId,@Valid @RequestBody CreateTestCaseRequest request){
         return testCaseService.createTestCaseForSuite(suiteId,request);
     }
@@ -48,6 +50,7 @@ public class TestCaseController {
     }
 
     @PutMapping("/{caseId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public TestCaseResponse updateTestCase(@PathVariable Integer caseId, @Valid @RequestBody UpdateTestCaseRequest request) {
         return testCaseService.updateTestCase(caseId, request)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "TestCase not found with id: " + caseId));
@@ -55,6 +58,7 @@ public class TestCaseController {
 
     @DeleteMapping("/{caseId}")
     @ResponseStatus(HttpStatus.NO_CONTENT) // Standard response for a successful delete
+    @PreAuthorize("hasRole('ADMIN')")
     public void deleteTestCase(@PathVariable Integer caseId) {
         boolean deleted = testCaseService.deleteTestCase(caseId);
         if (!deleted) {

@@ -17,4 +17,6 @@ public interface TestCaseRepository extends JpaRepository<TestCase, Integer> {
     Page<TestCase> findByTestSuiteId(Integer testSuiteId, Pageable pageable);
 
     long countByTestSuiteProjectId(Integer projectId);
+    long countByTestSuiteId(Integer testSuiteId);
+
 }

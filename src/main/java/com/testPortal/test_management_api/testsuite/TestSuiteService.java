@@ -12,7 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-
+import com.testPortal.test_management_api.testcase.TestCaseRepository;
 // for pagination
 import com.testPortal.test_management_api.common.PageInfo;
  import com.testPortal.test_management_api.common.PagedResponse;
@@ -32,10 +32,12 @@ public class TestSuiteService {
 
     private final TestSuiteRepository testSuiteRepository;
     private final ProjectRepository projectRepository;
+    private final TestCaseRepository testCaseRepository;
 
-    public TestSuiteService(TestSuiteRepository testSuiteRepository, ProjectRepository projectRepository) {
+    public TestSuiteService(TestSuiteRepository testSuiteRepository, ProjectRepository projectRepository,TestCaseRepository testCaseRepository) {
         this.testSuiteRepository = testSuiteRepository;
         this.projectRepository = projectRepository;
+        this.testCaseRepository = testCaseRepository;
     }
 
     /**
@@ -96,6 +98,12 @@ public class TestSuiteService {
         return new PagedResponse<>(content, pageInfo);
     }
 
+    public List<TestSuiteResponse> getAllTestSuitesForProject(Integer projectId){
+        if(!projectRepository.existsById(projectId)){
+            throw new ResourceNotFoundException("Project not found with id: "+projectId);
+        }
+        return testSuiteRepository.findByProjectId(projectId).stream().map(this::convertToResponse).collect(Collectors.toList());
+    }
 
     //    update -> rename the existing testsuite
     public TestSuiteResponse updateTestSuite(Integer suiteId, CreateTestSuiteRequest request) {
@@ -108,20 +116,29 @@ public class TestSuiteService {
     }
 
     //    Delete
-    public void deleteTestSuite(Integer suiteId){
-        if(!testSuiteRepository.existsById(suiteId)){
+    public TestSuiteResponse deleteTestSuite(Integer suiteId) {
+        if (!testSuiteRepository.existsById(suiteId)) {
             throw new ResourceNotFoundException("TestSuite not found with id: " + suiteId);
         }
+        TestSuite testSuiteTodelte = testSuiteRepository.findById(suiteId).orElseThrow(() -> new ResourceNotFoundException("Test Suite with id:" + suiteId + " not exist"));
+        // 2. Before deleting, convert the entity to the DTO we want to return.
+        TestSuiteResponse response = convertToResponse(testSuiteTodelte);
         testSuiteRepository.deleteById(suiteId);
+        return response;
     }
 
     // --- Helper Method for DTO Conversion ---
 
     private TestSuiteResponse convertToResponse(TestSuite testSuite) {
+        long testCaseCount = testCaseRepository.countByTestSuiteId(testSuite.getId());
         return new TestSuiteResponse(
                 testSuite.getId(),
                 testSuite.getName(),
-                testSuite.getProject().getId() // Get the ID from the nested project object
+                testSuite.getProject().getId(),// Get the ID from the nested project object,
+                testCaseCount,
+                testSuite.getCreatedAt(),
+                testSuite.getUpdatedAt()
+
         );
     }
 
