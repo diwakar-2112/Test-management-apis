@@ -67,8 +67,9 @@ public class AuthController {
         // The "Principal" is the UserDetails object returned by your CustomUserDetailsService
         UserDetails  userDetails = (UserDetails) authentication.getPrincipal();
         String userName = userDetails.getUsername();
-        String role = userDetails.getAuthorities().stream().findFirst().get().getAuthority();
-
+//        String role = userDetails.getAuthorities().stream().findFirst().get().getAuthority();
+        User dbUser = userService.getUserByUsername(userName);
+        String role = "ROLE_" + dbUser.getRole().getRoleName();
         // Return the token in the response.
         return ResponseEntity.ok(new LoginResponse(jwt,userName,role));
     }
@@ -90,12 +91,28 @@ public class AuthController {
 
         //5 Extract userName and role
         String userName = userDetails.getUsername();
-        String role = userDetails.getAuthorities().stream().findFirst().get().getAuthority();
+
+//        String role = userDetails.getAuthorities().stream().findFirst().get().getAuthority();
+        String role = userDetails.getAuthorities().stream()
+                .map(auth -> auth.getAuthority())
+                .filter(auth -> auth.startsWith("ROLE_")
+                        && !auth.endsWith("_CREATE")
+                        && !auth.endsWith("_EDIT")
+                        && !auth.endsWith("_DELETE")
+                        && !auth.endsWith("_VIEW")
+                        && !auth.endsWith("_LIST"))
+                .findFirst()
+                .orElse("ROLE_USER");
 
         //5 Return the token
         return ResponseEntity.ok(new LoginResponse(jwt,userName,role));
     }
 
+    @GetMapping("/me")
+    public Object getMyPermissions() {
+        // This will print out your exact authorities list in Postman!
+        return SecurityContextHolder.getContext().getAuthentication().getAuthorities();
+    }
 
 
 }

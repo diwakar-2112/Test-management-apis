@@ -31,7 +31,7 @@ public class TestSuiteController {
     //// POST /api/projects/{projectId}/testsuites
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN') or hasAuthority('TESTSUITE_CREATE')")
    public TestSuiteResponse createTestSuite(@PathVariable Integer projectId,@Valid @RequestBody CreateTestSuiteRequest request){
         return testSuiteService.createTestSuiteForProject(projectId,request);
     }
@@ -59,14 +59,14 @@ public class TestSuiteController {
     }
     // PUT /api/testsuites/{suiteId}
     @PutMapping("/{suiteId}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN') or hasAuthority('TESTSUITE_EDIT')")
     public TestSuiteResponse updateTestSuite(@PathVariable Integer suiteId, @Valid @RequestBody CreateTestSuiteRequest request){
         return testSuiteService.updateTestSuite(suiteId, request);
     }
 
     //Delete
     @DeleteMapping("/{suiteId}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN') or hasAuthority('TESTSUITE_DELETE')")
 //    @ResponseStatus(HttpStatus.NO_CONTENT)
     public TestSuiteResponse  deleteTestSuite(@PathVariable Integer suiteId){
       return  testSuiteService.deleteTestSuite(suiteId);
