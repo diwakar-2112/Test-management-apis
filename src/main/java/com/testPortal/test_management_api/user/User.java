@@ -26,6 +26,21 @@ public class User {
 //    @Column(nullable = false)
 //    private String role;
 
+    private String firstName;
+
+    private String middleName;
+
+    private String lastName;
+
+    private String email;
+
+    private String mobile;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private UserStatus status = UserStatus.ACTIVE; //default active
+
+
     // We use EAGER fetch here because every time Spring Security looks up a user,
     // it MUST immediately know their role to perform security checks!
     @ManyToOne(fetch = FetchType.EAGER)

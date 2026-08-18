@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
-"""Create a single text dump of the project's code files.
+"""Create a single text dump of the project's current code files.
 
 The script reads files from the current working tree, so modified and
-untracked files are included as long as they are not excluded.
+untracked files are included as long as they are not excluded. It streams
+file contents into the dump so the output can grow as large as needed without
+loading the whole project into memory at once.
 """
 
 from __future__ import annotations
@@ -14,7 +16,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 
-DEFAULT_OUTPUT = "project_code_dump.txt"
+DEFAULT_OUTPUT = "scripts/project_code_dump.txt"
 
 EXCLUDED_DIRS = {
     ".git",
@@ -33,43 +35,6 @@ EXCLUDED_FILE_NAMES = {
     ".DS_Store",
     "Thumbs.db",
     "maven-wrapper.jar",
-}
-
-INCLUDED_EXTENSIONS = {
-    ".bat",
-    ".cmd",
-    ".css",
-    ".csv",
-    ".dockerignore",
-    ".env",
-    ".example",
-    ".gitignore",
-    ".gradle",
-    ".html",
-    ".http",
-    ".java",
-    ".js",
-    ".json",
-    ".jsx",
-    ".kt",
-    ".kts",
-    ".md",
-    ".properties",
-    ".py",
-    ".sh",
-    ".sql",
-    ".ts",
-    ".tsx",
-    ".txt",
-    ".xml",
-    ".yaml",
-    ".yml",
-}
-
-INCLUDED_FILE_NAMES = {
-    "Dockerfile",
-    "Makefile",
-    "mvnw",
 }
 
 
@@ -99,7 +64,7 @@ def is_probably_binary(path: Path) -> bool:
     return b"\0" in chunk
 
 
-def should_include(path: Path, root: Path, output_path: Path, include_all_text: bool) -> bool:
+def should_include(path: Path, root: Path, output_path: Path) -> bool:
     if path.resolve() == output_path.resolve():
         return False
     if not path.is_file():
@@ -111,13 +76,10 @@ def should_include(path: Path, root: Path, output_path: Path, include_all_text: 
     if any(part in EXCLUDED_DIRS for part in relative.parts[:-1]):
         return False
 
-    if include_all_text:
-        return not is_probably_binary(path)
-
-    return path.name in INCLUDED_FILE_NAMES or path.suffix.lower() in INCLUDED_EXTENSIONS
+    return not is_probably_binary(path)
 
 
-def iter_files(root: Path, output_path: Path, include_all_text: bool) -> list[Path]:
+def iter_files(root: Path, output_path: Path) -> list[Path]:
     files: list[Path] = []
     for current_root, dir_names, file_names in os.walk(root):
         current_path = Path(current_root)
@@ -125,24 +87,20 @@ def iter_files(root: Path, output_path: Path, include_all_text: bool) -> list[Pa
 
         for file_name in sorted(file_names):
             path = current_path / file_name
-            if should_include(path, root, output_path, include_all_text):
+            if should_include(path, root, output_path):
                 files.append(path)
 
     return sorted(files, key=lambda item: item.relative_to(root).as_posix().lower())
 
 
-def read_text(path: Path) -> str:
-    raw = path.read_bytes()
-    for encoding in ("utf-8", "utf-8-sig", "cp1252"):
-        try:
-            return raw.decode(encoding)
-        except UnicodeDecodeError:
-            continue
-    return raw.decode("utf-8", errors="replace")
+def append_file_text(dump, path: Path) -> None:
+    with path.open("r", encoding="utf-8-sig", errors="replace", newline="") as source:
+        for chunk in iter(lambda: source.read(1024 * 1024), ""):
+            dump.write(chunk)
 
 
-def write_dump(root: Path, output_path: Path, include_all_text: bool) -> int:
-    files = iter_files(root, output_path, include_all_text)
+def write_dump(root: Path, output_path: Path) -> int:
+    files = iter_files(root, output_path)
     timestamp = datetime.now(timezone.utc).isoformat(timespec="seconds")
 
     with output_path.open("w", encoding="utf-8", newline="\n") as dump:
@@ -165,7 +123,7 @@ def write_dump(root: Path, output_path: Path, include_all_text: bool) -> int:
             if suffix:
                 dump.write(suffix)
             dump.write("\n")
-            dump.write(read_text(path).rstrip())
+            append_file_text(dump, path)
             dump.write("\n```\n\n")
 
     return len(files)
@@ -173,18 +131,13 @@ def write_dump(root: Path, output_path: Path, include_all_text: bool) -> int:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Dump project code into one text file from the current working tree."
+        description="Dump all current non-binary project text into one file."
     )
     parser.add_argument(
         "-o",
         "--output",
         default=DEFAULT_OUTPUT,
         help=f"Output dump file path. Default: {DEFAULT_OUTPUT}",
-    )
-    parser.add_argument(
-        "--all-text",
-        action="store_true",
-        help="Include every non-binary text file except excluded folders/files.",
     )
     return parser.parse_args()
 
@@ -195,7 +148,7 @@ def main() -> int:
     output_path = (root / args.output).resolve()
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    count = write_dump(root, output_path, args.all_text)
+    count = write_dump(root, output_path)
     print(f"Wrote {count} files to {output_path}")
     return 0
 

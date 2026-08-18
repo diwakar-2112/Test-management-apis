@@ -32,10 +32,16 @@ public interface ProjectRepository extends JpaRepository<Project, Integer> {
     //1. For the Paginated table
     // This JPQL query uses a JOIN to link the Project to its TestRuns, and checks the assignee ID.
     // 'DISTINCT' ensures that if a user has 5 runs in Project A, Project A only shows up once in the list.
-    @Query("SELECT DISTINCT p FROM Project p JOIN p.testRuns tr WHERE tr.assignee.id = :userId")
-    Page<Project> findProjectByAssigneeId(@Param("userId") Integer userId,Pageable pageable);
+//    @Query("SELECT DISTINCT p FROM Project p JOIN p.testRuns tr WHERE tr.assignee.id = :userId")
+//    Page<Project> findProjectByAssigneeId(@Param("userId") Integer userId,Pageable pageable);
+
+    @Query("SELECT DISTINCT p FROM Project p LEFT JOIN p.testRuns tr WHERE tr.assignee.id = :userId OR p.createdBy.id = :userId")
+    Page<Project> findProjectByAssigneeId(@Param("userId") Integer userId, Pageable pageable);
 
     // 2. For the isAll=true Dropdown Menu
-    @Query("SELECT DISTINCT p FROM Project p JOIN p.testRuns tr WHERE tr.assignee.id = :userId")
+//    @Query("SELECT DISTINCT p FROM Project p JOIN p.testRuns tr WHERE tr.assignee.id = :userId")
+//    List<Project> findProjectsByAssigneeIdList(@Param("userId") Integer userId);
+
+    @Query("SELECT DISTINCT p FROM Project p LEFT JOIN p.testRuns tr WHERE tr.assignee.id = :userId OR p.createdBy.id = :userId")
     List<Project> findProjectsByAssigneeIdList(@Param("userId") Integer userId);
 }

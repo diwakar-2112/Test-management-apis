@@ -33,7 +33,6 @@ public class ModuleService {
     }
 
     public List<ModuleDto> getAllModules(){
-        System.out.println("get module");
         return moduleRepository.findAll().stream().map(m->new ModuleDto(m.getId(),m.getModuleName(),m.getModuleUrl(),m.getModuleKey())).collect(Collectors.toList());
     }
 }

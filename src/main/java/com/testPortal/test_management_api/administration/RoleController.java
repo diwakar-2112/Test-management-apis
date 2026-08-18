@@ -40,4 +40,8 @@ public class RoleController {
         return ResponseEntity.ok("Role deleted successfully.");
 
     }
+    @PutMapping("/{id}")
+    public RoleDto updateRole(@PathVariable Integer id, @Valid @RequestBody CreateRoleRequest request) {
+        return roleService.updateRole(id, request);
+    }
 }
