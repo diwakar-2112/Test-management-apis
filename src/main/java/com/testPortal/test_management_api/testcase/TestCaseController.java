@@ -50,7 +50,7 @@ public class TestCaseController {
     }
 
     @PutMapping("/{caseId}")
-    @PreAuthorize("hasRole('SUPER_ADMIN') or hasAuthority('TESTCASE_EDIT')")
+//    @PreAuthorize("hasRole('SUPER_ADMIN') or hasAuthority('TESTCASE_EDIT')")
     public TestCaseResponse updateTestCase(@PathVariable Integer caseId, @Valid @RequestBody UpdateTestCaseRequest request) {
         return testCaseService.updateTestCase(caseId, request)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "TestCase not found with id: " + caseId));
@@ -58,7 +58,7 @@ public class TestCaseController {
 
     @DeleteMapping("/{caseId}")
     @ResponseStatus(HttpStatus.NO_CONTENT) // Standard response for a successful delete
-    @PreAuthorize("hasRole('SUPER_ADMIN') or hasAuthority('TESTCASE_DELETE')")
+//    @PreAuthorize("hasRole('SUPER_ADMIN') or hasAuthority('TESTCASE_DELETE')")
     public void deleteTestCase(@PathVariable Integer caseId) {
         boolean deleted = testCaseService.deleteTestCase(caseId);
         if (!deleted) {

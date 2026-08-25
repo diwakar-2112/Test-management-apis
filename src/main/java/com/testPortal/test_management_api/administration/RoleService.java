@@ -39,7 +39,7 @@ public class RoleService {
             RoleModuleAccess access = new RoleModuleAccess();
             access.setRole(role);
             access.setModule(module);
-            access.setCanCreate(access.isCanCreate());
+            access.setCanCreate(accessDto.isCanCreate());
             access.setCanEdit(accessDto.isCanEdit());
             access.setCanDelete(accessDto.isCanDelete());
             access.setCanList(accessDto.isCanList());

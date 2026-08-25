@@ -21,13 +21,13 @@ public class AdminUserController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasRole('SUPER_ADMIN') or hasAuthority('USER_MGMT_CREATE')")
+//    @PreAuthorize("hasRole('SUPER_ADMIN') or hasAuthority('USER_MGMT_CREATE')")
     public AdminUserResponse createUser(@Valid @RequestBody CreateAdminUserRequest request) {
         return userService.createAdminUser(request);
     }
 
     @GetMapping
-    @PreAuthorize("hasRole('SUPER_ADMIN') or hasAuthority('USER_MGMT_LIST')")
+//    @PreAuthorize("hasRole('SUPER_ADMIN') or hasAuthority('USER_MGMT_LIST')")
     public PagedResponse<AdminUserResponse> getAllUsers(@RequestParam(defaultValue = "0") int page,
                                                @RequestParam(defaultValue = "10") int size,
                                                @RequestParam(defaultValue = "id") String sortBy,
@@ -36,7 +36,7 @@ public class AdminUserController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('SUPER_ADMIN') or hasAuthority('USER_MGMT_EDIT')")
+//    @PreAuthorize("hasRole('SUPER_ADMIN') or hasAuthority('USER_MGMT_EDIT')")
     public AdminUserResponse updateUser(@PathVariable Integer id, @Valid @RequestBody UpdateAdminUserRequest request) {
         return userService.updateAdminUser(id, request);
     }
