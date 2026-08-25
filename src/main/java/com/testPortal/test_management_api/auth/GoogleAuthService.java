@@ -58,7 +58,7 @@ public class GoogleAuthService {
                     newUser.setPassword(passwordEncoder.encode(randomPassword));
 
                     //Default to  Tester Role
-                    newUser.setRole("ROLE_TESTER");
+//                    newUser.setRole("ROLE_TESTER");
                     return userRepository.save(newUser);
                 }
             } catch (Exception e) {

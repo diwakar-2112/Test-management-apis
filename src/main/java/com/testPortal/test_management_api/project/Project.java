@@ -58,6 +58,7 @@ package com.testPortal.test_management_api.project;
 import com.testPortal.test_management_api.testsuite.TestSuite; // Import the TestSuite entity
 import com.fasterxml.jackson.annotation.JsonManagedReference; // We will use this later
 import com.testPortal.test_management_api.testrun.TestRun;
+import com.testPortal.test_management_api.user.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -78,6 +79,10 @@ public class Project {
     private String name;
 
     private String description;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_by_id")
+    private User createdBy;
 
 
     // @OneToMany signifies that one Project can have many TestSuite entities.

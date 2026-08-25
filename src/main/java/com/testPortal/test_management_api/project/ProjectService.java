@@ -167,6 +167,7 @@ package com.testPortal.test_management_api.project;
 import com.testPortal.test_management_api.project.dto.CreateProjectRequest;
 import com.testPortal.test_management_api.project.dto.ProjectResponse;
 import com.testPortal.test_management_api.user.User;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import com.testPortal.test_management_api.exception.ResourceNotFoundException; // Import the new exception
 import com.testPortal.test_management_api.testcase.TestCaseRepository;
@@ -190,6 +191,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import com.testPortal.test_management_api.user.UserRepository;
 
 
+@Slf4j
 @Service
 public class ProjectService {
 
@@ -241,7 +243,7 @@ public class ProjectService {
         Page<Project> projectsPage;
 
         //6. Security Routing
-        if("ROLE_ADMIN".equals(currentUser.getRole())){
+        if("SUPER_ADMIN".equals(currentUser.getRole().getRoleName())){
             // Admins get to see everything
             projectsPage = projectRepository.findAll(pageable);
         }else{
@@ -274,12 +276,14 @@ public class ProjectService {
         List<Project> projects;
 
         // 2. SECURITY ROUTING
-        if ("ROLE_ADMIN".equals(currentUser.getRole())) {
+        if ("SUPER_ADMIN".equals(currentUser.getRole().getRoleName())) {
             // Admins get all projects
             projects = projectRepository.findAll();
         } else {
             // Testers get only their projects (Requires Step 2 from our previous chat!)
             projects = projectRepository.findProjectsByAssigneeIdList(currentUser.getId());
+            log.info("inside projects by user role testing");
+
         }
         List<ProjectResponse> content = projects.stream()
                 .map(this::convertToResponse)
@@ -306,7 +310,20 @@ public class ProjectService {
 
     //4. Create
     public ProjectResponse create(CreateProjectRequest request){
-        Project project = convertToEntity(request); // conver the request DTO to entity
+
+        // get the current logged-in user
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        User currentUser = userRepository.findByUsername(currentUsername)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        Project project = new Project();
+        project.setName(request.getName());
+        project.setDescription(request.getDescription());
+
+        //set the creator
+        project.setCreatedBy(currentUser);
+
+//        Project project = convertToEntity(request); // conver the request DTO to entity
         Project saveProject = projectRepository.save(project); //save it ti DB
         return convertToResponse(saveProject); //convert the saved entity back to response entity
     }

@@ -9,12 +9,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import com.testPortal.test_management_api.security.JwtTokenProvider; // Your package name
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -67,8 +69,9 @@ public class AuthController {
         // The "Principal" is the UserDetails object returned by your CustomUserDetailsService
         UserDetails  userDetails = (UserDetails) authentication.getPrincipal();
         String userName = userDetails.getUsername();
-        String role = userDetails.getAuthorities().stream().findFirst().get().getAuthority();
-
+//        String role = userDetails.getAuthorities().stream().findFirst().get().getAuthority();
+        User dbUser = userService.getUserByUsername(userName);
+        String role = "ROLE_" + dbUser.getRole().getRoleName();
         // Return the token in the response.
         return ResponseEntity.ok(new LoginResponse(jwt,userName,role));
     }
@@ -90,12 +93,31 @@ public class AuthController {
 
         //5 Extract userName and role
         String userName = userDetails.getUsername();
-        String role = userDetails.getAuthorities().stream().findFirst().get().getAuthority();
+
+//        String role = userDetails.getAuthorities().stream().findFirst().get().getAuthority();
+//        String role = userDetails.getAuthorities().stream()
+//                .map(auth -> auth.getAuthority())
+//                .filter(auth -> auth.startsWith("ROLE_")
+//                        && !auth.endsWith("_CREATE")
+//                        && !auth.endsWith("_EDIT")
+//                        && !auth.endsWith("_DELETE")
+//                        && !auth.endsWith("_VIEW")
+//                        && !auth.endsWith("_LIST"))
+//                .findFirst()
+//                .orElse("ROLE_USER");
+        User dbUser = userService.getUserByUsername(userName);
+        String role = "ROLE_" + dbUser.getRole().getRoleName();
 
         //5 Return the token
         return ResponseEntity.ok(new LoginResponse(jwt,userName,role));
     }
 
+    @GetMapping("/permissions")
+    public Object getMyPermissions() {
+        // This will print out your exact authorities list in Postman!
+        return SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream().map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList());
+    }
 
 
 }

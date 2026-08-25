@@ -117,18 +117,18 @@ public PagedResponse<ProjectResponse> findAll(
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('SUPER_ADMIN') or hasAuthority('PROJECT_CREATE')")
     public ProjectResponse create(@Valid @RequestBody CreateProjectRequest request){
         return projectService.create(request);
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('SUPER_ADMIN') or hasAuthority('PROJECT_EDIT')")
     public ProjectResponse update(@PathVariable Integer id, @Valid @RequestBody CreateProjectRequest request){
         return projectService.update(id, request);
     }
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('SUPER_ADMIN') or hasAuthority('PROJECT_DELETE')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Integer id){
         projectService.delete(id);
