@@ -19,13 +19,13 @@ public class TestRunController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('SUPER_ADMIN') or hasAuthority('TESTRUN_CREATE')")
     public TestRunResponse startTestRun(@PathVariable Integer suiteId, @Valid @RequestBody CreateTestRunRequest request) {
         return testRunService.startTestRunFromSuite(suiteId, request);
     }
 
     @PostMapping("/{runId}/assign")
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('SUPER_ADMIN') or hasAuthority('TESTRUN_EDIT')")
     public TestRunResponse assignTestRun(@PathVariable Integer runId, @RequestParam Integer userId) {
         return testRunService.assignTestRun(runId, userId);
     }
@@ -37,7 +37,7 @@ public class TestRunController {
     }
 
     @PutMapping("/results/{resultId}")
-//    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('SUPER_ADMIN') or hasAuthority('TESTRUN_EDIT')")
     public TestResultResponse updateResult(@PathVariable Integer resultId, @Valid @RequestBody UpdateTestResultRequest request) {
         return testRunService.updateTestResult(resultId, request);
     }

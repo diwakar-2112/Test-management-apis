@@ -1,0 +1,5069 @@
+# Project Code Dump
+
+Generated at: 2026-08-18T16:46:18+00:00
+Project root: D:\backend_dev\test-management-api\test-management-api
+File count: 86
+
+## Git Status
+
+```text
+M scripts/dump_project.py
+ M src/main/java/com/testPortal/test_management_api/administration/ModuleService.java
+ M src/main/java/com/testPortal/test_management_api/administration/RoleController.java
+ M src/main/java/com/testPortal/test_management_api/administration/RoleService.java
+ M src/main/java/com/testPortal/test_management_api/auth/AuthController.java
+ M src/main/java/com/testPortal/test_management_api/project/Project.java
+ M src/main/java/com/testPortal/test_management_api/project/ProjectRepository.java
+ M src/main/java/com/testPortal/test_management_api/project/ProjectService.java
+ M src/main/java/com/testPortal/test_management_api/user/User.java
+ M src/main/java/com/testPortal/test_management_api/user/UserService.java
+?? scripts/project_code_dump.txt
+?? src/main/java/com/testPortal/test_management_api/user/AdminUserController.java
+?? src/main/java/com/testPortal/test_management_api/user/AdminUserResponse.java
+?? src/main/java/com/testPortal/test_management_api/user/CreateAdminUserRequest.java
+?? src/main/java/com/testPortal/test_management_api/user/UpdateAdminUserRequest.java
+?? src/main/java/com/testPortal/test_management_api/user/UserStatus.java
+```
+
+## Files
+
+===== FILE: .gitattributes =====
+```
+/mvnw text eol=lf
+*.cmd text eol=crlf
+
+```
+
+===== FILE: .gitignore =====
+```
+HELP.md
+target/
+.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### VS Code ###
+.vscode/
+
+```
+
+===== FILE: Dockerfile =====
+```
+# Build Stage
+FROM eclipse-temurin:17-jdk-alpine AS build
+WORKDIR /app
+COPY . .
+RUN chmod +x mvnw
+RUN ./mvnw clean package -DskipTests
+
+# Run Stage
+FROM eclipse-temurin:17-jdk-alpine
+WORKDIR /app
+COPY --from=build /app/target/*.jar app.jar
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "app.jar"]
+```
+
+===== FILE: HELP.md =====
+```md
+# Read Me First
+The following was discovered as part of building this project:
+
+* The original package name 'com.testPortal.test-management-api' is invalid and this project uses 'com.testPortal.test_management_api' instead.
+
+# Getting Started
+
+### Reference Documentation
+For further reference, please consider the following sections:
+
+* [Official Apache Maven documentation](https://maven.apache.org/guides/index.html)
+* [Spring Boot Maven Plugin Reference Guide](https://docs.spring.io/spring-boot/3.5.6/maven-plugin)
+* [Create an OCI image](https://docs.spring.io/spring-boot/3.5.6/maven-plugin/build-image.html)
+* [Spring Web](https://docs.spring.io/spring-boot/3.5.6/reference/web/servlet.html)
+* [Spring Boot DevTools](https://docs.spring.io/spring-boot/3.5.6/reference/using/devtools.html)
+
+### Guides
+The following guides illustrate how to use some features concretely:
+
+* [Building a RESTful Web Service](https://spring.io/guides/gs/rest-service/)
+* [Serving Web Content with Spring MVC](https://spring.io/guides/gs/serving-web-content/)
+* [Building REST services with Spring](https://spring.io/guides/tutorials/rest/)
+
+### Maven Parent overrides
+
+Due to Maven's design, elements are inherited from the parent POM to the project POM.
+While most of the inheritance is fine, it also inherits unwanted elements like `<license>` and `<developers>` from the parent.
+To prevent this, the project POM contains empty overrides for these elements.
+If you manually switch to a different parent and actually want the inheritance, you need to remove those overrides.
+
+
+```
+
+===== FILE: mvnw =====
+```
+#!/bin/sh
+# ----------------------------------------------------------------------------
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+# ----------------------------------------------------------------------------
+
+# ----------------------------------------------------------------------------
+# Apache Maven Wrapper startup batch script, version 3.3.4
+#
+# Optional ENV vars
+# -----------------
+#   JAVA_HOME - location of a JDK home dir, required when download maven via java source
+#   MVNW_REPOURL - repo url base for downloading maven distribution
+#   MVNW_USERNAME/MVNW_PASSWORD - user and password for downloading maven
+#   MVNW_VERBOSE - true: enable verbose log; debug: trace the mvnw script; others: silence the output
+# ----------------------------------------------------------------------------
+
+set -euf
+[ "${MVNW_VERBOSE-}" != debug ] || set -x
+
+# OS specific support.
+native_path() { printf %s\\n "$1"; }
+case "$(uname)" in
+CYGWIN* | MINGW*)
+  [ -z "${JAVA_HOME-}" ] || JAVA_HOME="$(cygpath --unix "$JAVA_HOME")"
+  native_path() { cygpath --path --windows "$1"; }
+  ;;
+esac
+
+# set JAVACMD and JAVACCMD
+set_java_home() {
+  # For Cygwin and MinGW, ensure paths are in Unix format before anything is touched
+  if [ -n "${JAVA_HOME-}" ]; then
+    if [ -x "$JAVA_HOME/jre/sh/java" ]; then
+      # IBM's JDK on AIX uses strange locations for the executables
+      JAVACMD="$JAVA_HOME/jre/sh/java"
+      JAVACCMD="$JAVA_HOME/jre/sh/javac"
+    else
+      JAVACMD="$JAVA_HOME/bin/java"
+      JAVACCMD="$JAVA_HOME/bin/javac"
+
+      if [ ! -x "$JAVACMD" ] || [ ! -x "$JAVACCMD" ]; then
+        echo "The JAVA_HOME environment variable is not defined correctly, so mvnw cannot run." >&2
+        echo "JAVA_HOME is set to \"$JAVA_HOME\", but \"\$JAVA_HOME/bin/java\" or \"\$JAVA_HOME/bin/javac\" does not exist." >&2
+        return 1
+      fi
+    fi
+  else
+    JAVACMD="$(
+      'set' +e
+      'unset' -f command 2>/dev/null
+      'command' -v java
+    )" || :
+    JAVACCMD="$(
+      'set' +e
+      'unset' -f command 2>/dev/null
+      'command' -v javac
+    )" || :
+
+    if [ ! -x "${JAVACMD-}" ] || [ ! -x "${JAVACCMD-}" ]; then
+      echo "The java/javac command does not exist in PATH nor is JAVA_HOME set, so mvnw cannot run." >&2
+      return 1
+    fi
+  fi
+}
+
+# hash string like Java String::hashCode
+hash_string() {
+  str="${1:-}" h=0
+  while [ -n "$str" ]; do
+    char="${str%"${str#?}"}"
+    h=$(((h * 31 + $(LC_CTYPE=C printf %d "'$char")) % 4294967296))
+    str="${str#?}"
+  done
+  printf %x\\n $h
+}
+
+verbose() { :; }
+[ "${MVNW_VERBOSE-}" != true ] || verbose() { printf %s\\n "${1-}"; }
+
+die() {
+  printf %s\\n "$1" >&2
+  exit 1
+}
+
+trim() {
+  # MWRAPPER-139:
+  #   Trims trailing and leading whitespace, carriage returns, tabs, and linefeeds.
+  #   Needed for removing poorly interpreted newline sequences when running in more
+  #   exotic environments such as mingw bash on Windows.
+  printf "%s" "${1}" | tr -d '[:space:]'
+}
+
+scriptDir="$(dirname "$0")"
+scriptName="$(basename "$0")"
+
+# parse distributionUrl and optional distributionSha256Sum, requires .mvn/wrapper/maven-wrapper.properties
+while IFS="=" read -r key value; do
+  case "${key-}" in
+  distributionUrl) distributionUrl=$(trim "${value-}") ;;
+  distributionSha256Sum) distributionSha256Sum=$(trim "${value-}") ;;
+  esac
+done <"$scriptDir/.mvn/wrapper/maven-wrapper.properties"
+[ -n "${distributionUrl-}" ] || die "cannot read distributionUrl property in $scriptDir/.mvn/wrapper/maven-wrapper.properties"
+
+case "${distributionUrl##*/}" in
+maven-mvnd-*bin.*)
+  MVN_CMD=mvnd.sh _MVNW_REPO_PATTERN=/maven/mvnd/
+  case "${PROCESSOR_ARCHITECTURE-}${PROCESSOR_ARCHITEW6432-}:$(uname -a)" in
+  *AMD64:CYGWIN* | *AMD64:MINGW*) distributionPlatform=windows-amd64 ;;
+  :Darwin*x86_64) distributionPlatform=darwin-amd64 ;;
+  :Darwin*arm64) distributionPlatform=darwin-aarch64 ;;
+  :Linux*x86_64*) distributionPlatform=linux-amd64 ;;
+  *)
+    echo "Cannot detect native platform for mvnd on $(uname)-$(uname -m), use pure java version" >&2
+    distributionPlatform=linux-amd64
+    ;;
+  esac
+  distributionUrl="${distributionUrl%-bin.*}-$distributionPlatform.zip"
+  ;;
+maven-mvnd-*) MVN_CMD=mvnd.sh _MVNW_REPO_PATTERN=/maven/mvnd/ ;;
+*) MVN_CMD="mvn${scriptName#mvnw}" _MVNW_REPO_PATTERN=/org/apache/maven/ ;;
+esac
+
+# apply MVNW_REPOURL and calculate MAVEN_HOME
+# maven home pattern: ~/.m2/wrapper/dists/{apache-maven-<version>,maven-mvnd-<version>-<platform>}/<hash>
+[ -z "${MVNW_REPOURL-}" ] || distributionUrl="$MVNW_REPOURL$_MVNW_REPO_PATTERN${distributionUrl#*"$_MVNW_REPO_PATTERN"}"
+distributionUrlName="${distributionUrl##*/}"
+distributionUrlNameMain="${distributionUrlName%.*}"
+distributionUrlNameMain="${distributionUrlNameMain%-bin}"
+MAVEN_USER_HOME="${MAVEN_USER_HOME:-${HOME}/.m2}"
+MAVEN_HOME="${MAVEN_USER_HOME}/wrapper/dists/${distributionUrlNameMain-}/$(hash_string "$distributionUrl")"
+
+exec_maven() {
+  unset MVNW_VERBOSE MVNW_USERNAME MVNW_PASSWORD MVNW_REPOURL || :
+  exec "$MAVEN_HOME/bin/$MVN_CMD" "$@" || die "cannot exec $MAVEN_HOME/bin/$MVN_CMD"
+}
+
+if [ -d "$MAVEN_HOME" ]; then
+  verbose "found existing MAVEN_HOME at $MAVEN_HOME"
+  exec_maven "$@"
+fi
+
+case "${distributionUrl-}" in
+*?-bin.zip | *?maven-mvnd-?*-?*.zip) ;;
+*) die "distributionUrl is not valid, must match *-bin.zip or maven-mvnd-*.zip, but found '${distributionUrl-}'" ;;
+esac
+
+# prepare tmp dir
+if TMP_DOWNLOAD_DIR="$(mktemp -d)" && [ -d "$TMP_DOWNLOAD_DIR" ]; then
+  clean() { rm -rf -- "$TMP_DOWNLOAD_DIR"; }
+  trap clean HUP INT TERM EXIT
+else
+  die "cannot create temp dir"
+fi
+
+mkdir -p -- "${MAVEN_HOME%/*}"
+
+# Download and Install Apache Maven
+verbose "Couldn't find MAVEN_HOME, downloading and installing it ..."
+verbose "Downloading from: $distributionUrl"
+verbose "Downloading to: $TMP_DOWNLOAD_DIR/$distributionUrlName"
+
+# select .zip or .tar.gz
+if ! command -v unzip >/dev/null; then
+  distributionUrl="${distributionUrl%.zip}.tar.gz"
+  distributionUrlName="${distributionUrl##*/}"
+fi
+
+# verbose opt
+__MVNW_QUIET_WGET=--quiet __MVNW_QUIET_CURL=--silent __MVNW_QUIET_UNZIP=-q __MVNW_QUIET_TAR=''
+[ "${MVNW_VERBOSE-}" != true ] || __MVNW_QUIET_WGET='' __MVNW_QUIET_CURL='' __MVNW_QUIET_UNZIP='' __MVNW_QUIET_TAR=v
+
+# normalize http auth
+case "${MVNW_PASSWORD:+has-password}" in
+'') MVNW_USERNAME='' MVNW_PASSWORD='' ;;
+has-password) [ -n "${MVNW_USERNAME-}" ] || MVNW_USERNAME='' MVNW_PASSWORD='' ;;
+esac
+
+if [ -z "${MVNW_USERNAME-}" ] && command -v wget >/dev/null; then
+  verbose "Found wget ... using wget"
+  wget ${__MVNW_QUIET_WGET:+"$__MVNW_QUIET_WGET"} "$distributionUrl" -O "$TMP_DOWNLOAD_DIR/$distributionUrlName" || die "wget: Failed to fetch $distributionUrl"
+elif [ -z "${MVNW_USERNAME-}" ] && command -v curl >/dev/null; then
+  verbose "Found curl ... using curl"
+  curl ${__MVNW_QUIET_CURL:+"$__MVNW_QUIET_CURL"} -f -L -o "$TMP_DOWNLOAD_DIR/$distributionUrlName" "$distributionUrl" || die "curl: Failed to fetch $distributionUrl"
+elif set_java_home; then
+  verbose "Falling back to use Java to download"
+  javaSource="$TMP_DOWNLOAD_DIR/Downloader.java"
+  targetZip="$TMP_DOWNLOAD_DIR/$distributionUrlName"
+  cat >"$javaSource" <<-END
+	public class Downloader extends java.net.Authenticator
+	{
+	  protected java.net.PasswordAuthentication getPasswordAuthentication()
+	  {
+	    return new java.net.PasswordAuthentication( System.getenv( "MVNW_USERNAME" ), System.getenv( "MVNW_PASSWORD" ).toCharArray() );
+	  }
+	  public static void main( String[] args ) throws Exception
+	  {
+	    setDefault( new Downloader() );
+	    java.nio.file.Files.copy( java.net.URI.create( args[0] ).toURL().openStream(), java.nio.file.Paths.get( args[1] ).toAbsolutePath().normalize() );
+	  }
+	}
+	END
+  # For Cygwin/MinGW, switch paths to Windows format before running javac and java
+  verbose " - Compiling Downloader.java ..."
+  "$(native_path "$JAVACCMD")" "$(native_path "$javaSource")" || die "Failed to compile Downloader.java"
+  verbose " - Running Downloader.java ..."
+  "$(native_path "$JAVACMD")" -cp "$(native_path "$TMP_DOWNLOAD_DIR")" Downloader "$distributionUrl" "$(native_path "$targetZip")"
+fi
+
+# If specified, validate the SHA-256 sum of the Maven distribution zip file
+if [ -n "${distributionSha256Sum-}" ]; then
+  distributionSha256Result=false
+  if [ "$MVN_CMD" = mvnd.sh ]; then
+    echo "Checksum validation is not supported for maven-mvnd." >&2
+    echo "Please disable validation by removing 'distributionSha256Sum' from your maven-wrapper.properties." >&2
+    exit 1
+  elif command -v sha256sum >/dev/null; then
+    if echo "$distributionSha256Sum  $TMP_DOWNLOAD_DIR/$distributionUrlName" | sha256sum -c - >/dev/null 2>&1; then
+      distributionSha256Result=true
+    fi
+  elif command -v shasum >/dev/null; then
+    if echo "$distributionSha256Sum  $TMP_DOWNLOAD_DIR/$distributionUrlName" | shasum -a 256 -c >/dev/null 2>&1; then
+      distributionSha256Result=true
+    fi
+  else
+    echo "Checksum validation was requested but neither 'sha256sum' or 'shasum' are available." >&2
+    echo "Please install either command, or disable validation by removing 'distributionSha256Sum' from your maven-wrapper.properties." >&2
+    exit 1
+  fi
+  if [ $distributionSha256Result = false ]; then
+    echo "Error: Failed to validate Maven distribution SHA-256, your Maven distribution might be compromised." >&2
+    echo "If you updated your Maven version, you need to update the specified distributionSha256Sum property." >&2
+    exit 1
+  fi
+fi
+
+# unzip and move
+if command -v unzip >/dev/null; then
+  unzip ${__MVNW_QUIET_UNZIP:+"$__MVNW_QUIET_UNZIP"} "$TMP_DOWNLOAD_DIR/$distributionUrlName" -d "$TMP_DOWNLOAD_DIR" || die "failed to unzip"
+else
+  tar xzf${__MVNW_QUIET_TAR:+"$__MVNW_QUIET_TAR"} "$TMP_DOWNLOAD_DIR/$distributionUrlName" -C "$TMP_DOWNLOAD_DIR" || die "failed to untar"
+fi
+
+# Find the actual extracted directory name (handles snapshots where filename != directory name)
+actualDistributionDir=""
+
+# First try the expected directory name (for regular distributions)
+if [ -d "$TMP_DOWNLOAD_DIR/$distributionUrlNameMain" ]; then
+  if [ -f "$TMP_DOWNLOAD_DIR/$distributionUrlNameMain/bin/$MVN_CMD" ]; then
+    actualDistributionDir="$distributionUrlNameMain"
+  fi
+fi
+
+# If not found, search for any directory with the Maven executable (for snapshots)
+if [ -z "$actualDistributionDir" ]; then
+  # enable globbing to iterate over items
+  set +f
+  for dir in "$TMP_DOWNLOAD_DIR"/*; do
+    if [ -d "$dir" ]; then
+      if [ -f "$dir/bin/$MVN_CMD" ]; then
+        actualDistributionDir="$(basename "$dir")"
+        break
+      fi
+    fi
+  done
+  set -f
+fi
+
+if [ -z "$actualDistributionDir" ]; then
+  verbose "Contents of $TMP_DOWNLOAD_DIR:"
+  verbose "$(ls -la "$TMP_DOWNLOAD_DIR")"
+  die "Could not find Maven distribution directory in extracted archive"
+fi
+
+verbose "Found extracted Maven distribution directory: $actualDistributionDir"
+printf %s\\n "$distributionUrl" >"$TMP_DOWNLOAD_DIR/$actualDistributionDir/mvnw.url"
+mv -- "$TMP_DOWNLOAD_DIR/$actualDistributionDir" "$MAVEN_HOME" || [ -d "$MAVEN_HOME" ] || die "fail to move MAVEN_HOME"
+
+clean || :
+exec_maven "$@"
+
+```
+
+===== FILE: mvnw.cmd =====
+```cmd
+<# : batch portion
+@REM ----------------------------------------------------------------------------
+@REM Licensed to the Apache Software Foundation (ASF) under one
+@REM or more contributor license agreements.  See the NOTICE file
+@REM distributed with this work for additional information
+@REM regarding copyright ownership.  The ASF licenses this file
+@REM to you under the Apache License, Version 2.0 (the
+@REM "License"); you may not use this file except in compliance
+@REM with the License.  You may obtain a copy of the License at
+@REM
+@REM    http://www.apache.org/licenses/LICENSE-2.0
+@REM
+@REM Unless required by applicable law or agreed to in writing,
+@REM software distributed under the License is distributed on an
+@REM "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+@REM KIND, either express or implied.  See the License for the
+@REM specific language governing permissions and limitations
+@REM under the License.
+@REM ----------------------------------------------------------------------------
+
+@REM ----------------------------------------------------------------------------
+@REM Apache Maven Wrapper startup batch script, version 3.3.4
+@REM
+@REM Optional ENV vars
+@REM   MVNW_REPOURL - repo url base for downloading maven distribution
+@REM   MVNW_USERNAME/MVNW_PASSWORD - user and password for downloading maven
+@REM   MVNW_VERBOSE - true: enable verbose log; others: silence the output
+@REM ----------------------------------------------------------------------------
+
+@IF "%__MVNW_ARG0_NAME__%"=="" (SET __MVNW_ARG0_NAME__=%~nx0)
+@SET __MVNW_CMD__=
+@SET __MVNW_ERROR__=
+@SET __MVNW_PSMODULEP_SAVE=%PSModulePath%
+@SET PSModulePath=
+@FOR /F "usebackq tokens=1* delims==" %%A IN (`powershell -noprofile "& {$scriptDir='%~dp0'; $script='%__MVNW_ARG0_NAME__%'; icm -ScriptBlock ([Scriptblock]::Create((Get-Content -Raw '%~f0'))) -NoNewScope}"`) DO @(
+  IF "%%A"=="MVN_CMD" (set __MVNW_CMD__=%%B) ELSE IF "%%B"=="" (echo %%A) ELSE (echo %%A=%%B)
+)
+@SET PSModulePath=%__MVNW_PSMODULEP_SAVE%
+@SET __MVNW_PSMODULEP_SAVE=
+@SET __MVNW_ARG0_NAME__=
+@SET MVNW_USERNAME=
+@SET MVNW_PASSWORD=
+@IF NOT "%__MVNW_CMD__%"=="" ("%__MVNW_CMD__%" %*)
+@echo Cannot start maven from wrapper >&2 && exit /b 1
+@GOTO :EOF
+: end batch / begin powershell #>
+
+$ErrorActionPreference = "Stop"
+if ($env:MVNW_VERBOSE -eq "true") {
+  $VerbosePreference = "Continue"
+}
+
+# calculate distributionUrl, requires .mvn/wrapper/maven-wrapper.properties
+$distributionUrl = (Get-Content -Raw "$scriptDir/.mvn/wrapper/maven-wrapper.properties" | ConvertFrom-StringData).distributionUrl
+if (!$distributionUrl) {
+  Write-Error "cannot read distributionUrl property in $scriptDir/.mvn/wrapper/maven-wrapper.properties"
+}
+
+switch -wildcard -casesensitive ( $($distributionUrl -replace '^.*/','') ) {
+  "maven-mvnd-*" {
+    $USE_MVND = $true
+    $distributionUrl = $distributionUrl -replace '-bin\.[^.]*$',"-windows-amd64.zip"
+    $MVN_CMD = "mvnd.cmd"
+    break
+  }
+  default {
+    $USE_MVND = $false
+    $MVN_CMD = $script -replace '^mvnw','mvn'
+    break
+  }
+}
+
+# apply MVNW_REPOURL and calculate MAVEN_HOME
+# maven home pattern: ~/.m2/wrapper/dists/{apache-maven-<version>,maven-mvnd-<version>-<platform>}/<hash>
+if ($env:MVNW_REPOURL) {
+  $MVNW_REPO_PATTERN = if ($USE_MVND -eq $False) { "/org/apache/maven/" } else { "/maven/mvnd/" }
+  $distributionUrl = "$env:MVNW_REPOURL$MVNW_REPO_PATTERN$($distributionUrl -replace "^.*$MVNW_REPO_PATTERN",'')"
+}
+$distributionUrlName = $distributionUrl -replace '^.*/',''
+$distributionUrlNameMain = $distributionUrlName -replace '\.[^.]*$','' -replace '-bin$',''
+
+$MAVEN_M2_PATH = "$HOME/.m2"
+if ($env:MAVEN_USER_HOME) {
+  $MAVEN_M2_PATH = "$env:MAVEN_USER_HOME"
+}
+
+if (-not (Test-Path -Path $MAVEN_M2_PATH)) {
+    New-Item -Path $MAVEN_M2_PATH -ItemType Directory | Out-Null
+}
+
+$MAVEN_WRAPPER_DISTS = $null
+if ((Get-Item $MAVEN_M2_PATH).Target[0] -eq $null) {
+  $MAVEN_WRAPPER_DISTS = "$MAVEN_M2_PATH/wrapper/dists"
+} else {
+  $MAVEN_WRAPPER_DISTS = (Get-Item $MAVEN_M2_PATH).Target[0] + "/wrapper/dists"
+}
+
+$MAVEN_HOME_PARENT = "$MAVEN_WRAPPER_DISTS/$distributionUrlNameMain"
+$MAVEN_HOME_NAME = ([System.Security.Cryptography.SHA256]::Create().ComputeHash([byte[]][char[]]$distributionUrl) | ForEach-Object {$_.ToString("x2")}) -join ''
+$MAVEN_HOME = "$MAVEN_HOME_PARENT/$MAVEN_HOME_NAME"
+
+if (Test-Path -Path "$MAVEN_HOME" -PathType Container) {
+  Write-Verbose "found existing MAVEN_HOME at $MAVEN_HOME"
+  Write-Output "MVN_CMD=$MAVEN_HOME/bin/$MVN_CMD"
+  exit $?
+}
+
+if (! $distributionUrlNameMain -or ($distributionUrlName -eq $distributionUrlNameMain)) {
+  Write-Error "distributionUrl is not valid, must end with *-bin.zip, but found $distributionUrl"
+}
+
+# prepare tmp dir
+$TMP_DOWNLOAD_DIR_HOLDER = New-TemporaryFile
+$TMP_DOWNLOAD_DIR = New-Item -Itemtype Directory -Path "$TMP_DOWNLOAD_DIR_HOLDER.dir"
+$TMP_DOWNLOAD_DIR_HOLDER.Delete() | Out-Null
+trap {
+  if ($TMP_DOWNLOAD_DIR.Exists) {
+    try { Remove-Item $TMP_DOWNLOAD_DIR -Recurse -Force | Out-Null }
+    catch { Write-Warning "Cannot remove $TMP_DOWNLOAD_DIR" }
+  }
+}
+
+New-Item -Itemtype Directory -Path "$MAVEN_HOME_PARENT" -Force | Out-Null
+
+# Download and Install Apache Maven
+Write-Verbose "Couldn't find MAVEN_HOME, downloading and installing it ..."
+Write-Verbose "Downloading from: $distributionUrl"
+Write-Verbose "Downloading to: $TMP_DOWNLOAD_DIR/$distributionUrlName"
+
+$webclient = New-Object System.Net.WebClient
+if ($env:MVNW_USERNAME -and $env:MVNW_PASSWORD) {
+  $webclient.Credentials = New-Object System.Net.NetworkCredential($env:MVNW_USERNAME, $env:MVNW_PASSWORD)
+}
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+$webclient.DownloadFile($distributionUrl, "$TMP_DOWNLOAD_DIR/$distributionUrlName") | Out-Null
+
+# If specified, validate the SHA-256 sum of the Maven distribution zip file
+$distributionSha256Sum = (Get-Content -Raw "$scriptDir/.mvn/wrapper/maven-wrapper.properties" | ConvertFrom-StringData).distributionSha256Sum
+if ($distributionSha256Sum) {
+  if ($USE_MVND) {
+    Write-Error "Checksum validation is not supported for maven-mvnd. `nPlease disable validation by removing 'distributionSha256Sum' from your maven-wrapper.properties."
+  }
+  Import-Module $PSHOME\Modules\Microsoft.PowerShell.Utility -Function Get-FileHash
+  if ((Get-FileHash "$TMP_DOWNLOAD_DIR/$distributionUrlName" -Algorithm SHA256).Hash.ToLower() -ne $distributionSha256Sum) {
+    Write-Error "Error: Failed to validate Maven distribution SHA-256, your Maven distribution might be compromised. If you updated your Maven version, you need to update the specified distributionSha256Sum property."
+  }
+}
+
+# unzip and move
+Expand-Archive "$TMP_DOWNLOAD_DIR/$distributionUrlName" -DestinationPath "$TMP_DOWNLOAD_DIR" | Out-Null
+
+# Find the actual extracted directory name (handles snapshots where filename != directory name)
+$actualDistributionDir = ""
+
+# First try the expected directory name (for regular distributions)
+$expectedPath = Join-Path "$TMP_DOWNLOAD_DIR" "$distributionUrlNameMain"
+$expectedMvnPath = Join-Path "$expectedPath" "bin/$MVN_CMD"
+if ((Test-Path -Path $expectedPath -PathType Container) -and (Test-Path -Path $expectedMvnPath -PathType Leaf)) {
+  $actualDistributionDir = $distributionUrlNameMain
+}
+
+# If not found, search for any directory with the Maven executable (for snapshots)
+if (!$actualDistributionDir) {
+  Get-ChildItem -Path "$TMP_DOWNLOAD_DIR" -Directory | ForEach-Object {
+    $testPath = Join-Path $_.FullName "bin/$MVN_CMD"
+    if (Test-Path -Path $testPath -PathType Leaf) {
+      $actualDistributionDir = $_.Name
+    }
+  }
+}
+
+if (!$actualDistributionDir) {
+  Write-Error "Could not find Maven distribution directory in extracted archive"
+}
+
+Write-Verbose "Found extracted Maven distribution directory: $actualDistributionDir"
+Rename-Item -Path "$TMP_DOWNLOAD_DIR/$actualDistributionDir" -NewName $MAVEN_HOME_NAME | Out-Null
+try {
+  Move-Item -Path "$TMP_DOWNLOAD_DIR/$MAVEN_HOME_NAME" -Destination $MAVEN_HOME_PARENT | Out-Null
+} catch {
+  if (! (Test-Path -Path "$MAVEN_HOME" -PathType Container)) {
+    Write-Error "fail to move MAVEN_HOME"
+  }
+} finally {
+  try { Remove-Item $TMP_DOWNLOAD_DIR -Recurse -Force | Out-Null }
+  catch { Write-Warning "Cannot remove $TMP_DOWNLOAD_DIR" }
+}
+
+Write-Output "MVN_CMD=$MAVEN_HOME/bin/$MVN_CMD"
+
+```
+
+===== FILE: pom.xml =====
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>3.5.6</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.testPortal</groupId>
+	<artifactId>test-management-api</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>test-management-api</name>
+	<description>This is a test management portal</description>
+	<url/>
+	<licenses>
+		<license/>
+	</licenses>
+	<developers>
+		<developer/>
+	</developers>
+	<scm>
+		<connection/>
+		<developerConnection/>
+		<tag/>
+		<url/>
+	</scm>
+	<properties>
+		<java.version>17</java.version>
+	</properties>
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>2.8.4</version>
+        </dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<scope>runtime</scope>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+        <!-- For talking to databases using the Java Persistence API (JPA) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <!-- The H2 In-Memory Database Driver -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+<!--        spring security-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>0.11.5</version>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>0.11.5</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>0.11.5</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.api-client</groupId>
+            <artifactId>google-api-client</artifactId>
+            <version>2.2.0</version>
+        </dependency>
+
+	</dependencies>
+
+
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<annotationProcessorPaths>
+						<path>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+						</path>
+					</annotationProcessorPaths>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<excludes>
+						<exclude>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+						</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
+
+```
+
+===== FILE: scripts/dump_project.py =====
+```py
+#!/usr/bin/env python3
+"""Create a single text dump of the project's current code files.
+
+The script reads files from the current working tree, so modified and
+untracked files are included as long as they are not excluded. It streams
+file contents into the dump so the output can grow as large as needed without
+loading the whole project into memory at once.
+"""
+
+from __future__ import annotations
+
+import argparse
+import os
+import subprocess
+from datetime import datetime, timezone
+from pathlib import Path
+
+
+DEFAULT_OUTPUT = "scripts/project_code_dump.txt"
+
+EXCLUDED_DIRS = {
+    ".git",
+    ".idea",
+    ".mvn",
+    ".vscode",
+    "build",
+    "dist",
+    "nbbuild",
+    "nbdist",
+    "target",
+    "__pycache__",
+}
+
+EXCLUDED_FILE_NAMES = {
+    ".DS_Store",
+    "Thumbs.db",
+    "maven-wrapper.jar",
+}
+
+
+def run_git(args: list[str], root: Path) -> str:
+    try:
+        result = subprocess.run(
+            ["git", *args],
+            cwd=root,
+            check=False,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+        )
+    except FileNotFoundError:
+        return "git command not available"
+
+    output = (result.stdout + result.stderr).strip()
+    return output or "(no output)"
+
+
+def is_probably_binary(path: Path) -> bool:
+    try:
+        chunk = path.read_bytes()[:4096]
+    except OSError:
+        return True
+    return b"\0" in chunk
+
+
+def should_include(path: Path, root: Path, output_path: Path) -> bool:
+    if path.resolve() == output_path.resolve():
+        return False
+    if not path.is_file():
+        return False
+    if path.name in EXCLUDED_FILE_NAMES:
+        return False
+
+    relative = path.relative_to(root)
+    if any(part in EXCLUDED_DIRS for part in relative.parts[:-1]):
+        return False
+
+    return not is_probably_binary(path)
+
+
+def iter_files(root: Path, output_path: Path) -> list[Path]:
+    files: list[Path] = []
+    for current_root, dir_names, file_names in os.walk(root):
+        current_path = Path(current_root)
+        dir_names[:] = sorted(name for name in dir_names if name not in EXCLUDED_DIRS)
+
+        for file_name in sorted(file_names):
+            path = current_path / file_name
+            if should_include(path, root, output_path):
+                files.append(path)
+
+    return sorted(files, key=lambda item: item.relative_to(root).as_posix().lower())
+
+
+def append_file_text(dump, path: Path) -> None:
+    with path.open("r", encoding="utf-8-sig", errors="replace", newline="") as source:
+        for chunk in iter(lambda: source.read(1024 * 1024), ""):
+            dump.write(chunk)
+
+
+def write_dump(root: Path, output_path: Path) -> int:
+    files = iter_files(root, output_path)
+    timestamp = datetime.now(timezone.utc).isoformat(timespec="seconds")
+
+    with output_path.open("w", encoding="utf-8", newline="\n") as dump:
+        dump.write("# Project Code Dump\n\n")
+        dump.write(f"Generated at: {timestamp}\n")
+        dump.write(f"Project root: {root}\n")
+        dump.write(f"File count: {len(files)}\n\n")
+
+        dump.write("## Git Status\n\n")
+        dump.write("```text\n")
+        dump.write(run_git(["status", "--short"], root))
+        dump.write("\n```\n\n")
+
+        dump.write("## Files\n\n")
+        for path in files:
+            relative = path.relative_to(root).as_posix()
+            dump.write(f"===== FILE: {relative} =====\n")
+            dump.write("```")
+            suffix = path.suffix.lstrip(".")
+            if suffix:
+                dump.write(suffix)
+            dump.write("\n")
+            append_file_text(dump, path)
+            dump.write("\n```\n\n")
+
+    return len(files)
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Dump all current non-binary project text into one file."
+    )
+    parser.add_argument(
+        "-o",
+        "--output",
+        default=DEFAULT_OUTPUT,
+        help=f"Output dump file path. Default: {DEFAULT_OUTPUT}",
+    )
+    return parser.parse_args()
+
+
+def main() -> int:
+    args = parse_args()
+    root = Path.cwd().resolve()
+    output_path = (root / args.output).resolve()
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    count = write_dump(root, output_path)
+    print(f"Wrote {count} files to {output_path}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/administration/dto/CreateRoleRequest.java =====
+```java
+package com.testPortal.test_management_api.administration.dto;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import lombok.Data;
+
+import java.util.List;
+
+@Data
+public class CreateRoleRequest {
+
+    @NotBlank(message = "Role name is required")
+    private String roleName;
+
+    @NotNull(message = "Module access list cannot be null")
+    private List<RoleModuleAccessDto> moduleAccess;
+}
+
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/administration/dto/ModuleDto.java =====
+```java
+package com.testPortal.test_management_api.administration.dto;
+
+import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+
+public class ModuleDto {
+    private Integer moduleId;
+
+    @NotBlank(message = "Module Name is Required")
+    private String moduleName;
+
+    @NotBlank(message = "Module Url is required")
+    private String moduleUrl;
+
+    @NotBlank(message = "Module key is required")
+    private String moduleKey;
+}
+
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/administration/dto/RoleDto.java =====
+```java
+package com.testPortal.test_management_api.administration.dto;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.NoArgsConstructor;
+import lombok.Data;
+import lombok.AllArgsConstructor;
+import java.util.List;
+
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+
+public class RoleDto {
+
+    @JsonProperty("roleId")
+    private Integer id;
+    private String roleName;
+    private List<RoleModuleAccessDto> moduleAccess;
+}
+
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/administration/dto/RoleModuleAccessDto.java =====
+```java
+package com.testPortal.test_management_api.administration.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class RoleModuleAccessDto {
+    private Integer moduleId;
+    private String moduleName;
+    private boolean canCreate;
+    private boolean canEdit;
+    private boolean canDelete;
+    private boolean canList;
+    private boolean canView;
+
+}
+
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/administration/Module.java =====
+```java
+package com.testPortal.test_management_api.administration;
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Entity
+@Table(name="modules")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+
+public class Module {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+
+    @Column(nullable = false,unique = true)
+    private String moduleName;
+
+    private String moduleUrl;
+
+    @Column(nullable = false,unique = true)
+    private String moduleKey;
+}
+
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/administration/ModuleController.java =====
+```java
+package com.testPortal.test_management_api.administration;
+
+import com.testPortal.test_management_api.administration.dto.ModuleDto;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+
+
+@RestController
+@RequestMapping("/api/admin/modules")
+public class ModuleController {
+    private final ModuleService moduleService;
+
+    public ModuleController(ModuleService moduleService){
+        this.moduleService=moduleService;
+    }
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public ModuleDto createModule(@Valid @RequestBody ModuleDto request){
+        return moduleService.createModule(request);
+    }
+
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
+    public List<ModuleDto> getAllModules(){
+        return moduleService.getAllModules();
+    }
+
+}
+
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/administration/ModuleRepository.java =====
+```java
+package com.testPortal.test_management_api.administration;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+
+
+public interface ModuleRepository extends JpaRepository<Module,Integer> {
+
+    boolean existsByModuleKey(String moduleKey);
+}
+
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/administration/ModuleService.java =====
+```java
+package com.testPortal.test_management_api.administration;
+
+import com.testPortal.test_management_api.administration.dto.ModuleDto;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+
+
+@Service
+public class ModuleService {
+    private final ModuleRepository moduleRepository;
+
+    public ModuleService(ModuleRepository moduleRepository){
+        this.moduleRepository = moduleRepository;
+    }
+
+    public ModuleDto createModule(ModuleDto request){
+        if(moduleRepository.existsByModuleKey(request.getModuleKey())){
+            throw new RuntimeException("Module Key already exists!");
+        }
+
+        Module module = new Module();
+        module.setModuleName(request.getModuleName());
+        module.setModuleUrl(request.getModuleUrl());
+        module.setModuleKey(request.getModuleKey());
+
+        Module savedModule = moduleRepository.save(module);
+
+        return new ModuleDto(savedModule.getId(), savedModule.getModuleName(), savedModule.getModuleUrl(), savedModule.getModuleName());
+
+    }
+
+    public List<ModuleDto> getAllModules(){
+        return moduleRepository.findAll().stream().map(m->new ModuleDto(m.getId(),m.getModuleName(),m.getModuleUrl(),m.getModuleKey())).collect(Collectors.toList());
+    }
+}
+
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/administration/Role.java =====
+```java
+package com.testPortal.test_management_api.administration;
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import java.util.List;
+@Entity
+@Table(name = "roles")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+
+public class Role {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+
+    @Column(nullable = false, unique = true)
+    private String roleName;
+
+    //This list all the module permissions attached to this specific role
+
+    @OneToMany(mappedBy = "role",cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<RoleModuleAccess> moduleAccessList;
+
+
+}
+
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/administration/RoleController.java =====
+```java
+package com.testPortal.test_management_api.administration;
+
+import com.testPortal.test_management_api.administration.dto.CreateRoleRequest;
+import com.testPortal.test_management_api.administration.dto.RoleDto;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/admin/roles")
+public class RoleController {
+    private final RoleService roleService;
+
+    public RoleController(RoleService roleService){
+        this.roleService=roleService;
+    }
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public RoleDto createRole(@Valid @RequestBody CreateRoleRequest roleRequest){
+        return roleService.createRoleDto(roleRequest);
+    }
+
+    @GetMapping
+    public List<RoleDto> getAllRole(){
+        return roleService.getAllRoles();
+    }
+
+    @GetMapping("/{id}")
+    public RoleDto getRoleById(@PathVariable Integer id){
+        return roleService.getRoleById(id);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteRoleById(@PathVariable Integer id){
+        roleService.deleteRole(id);
+        return ResponseEntity.ok("Role deleted successfully.");
+
+    }
+    @PutMapping("/{id}")
+    public RoleDto updateRole(@PathVariable Integer id, @Valid @RequestBody CreateRoleRequest request) {
+        return roleService.updateRole(id, request);
+    }
+}
+
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/administration/RoleModuleAccess.java =====
+```java
+package com.testPortal.test_management_api.administration;
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Entity
+@Table(name = "role_module_access")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+
+public class RoleModuleAccess {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+
+
+    //which role does this belong to
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "role_id",nullable = false)
+    private Role role;
+
+    //which module is this for?
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "module_id", nullable = false)
+    private Module module;
+
+    private boolean canCreate;
+    private boolean canEdit;
+    private boolean canDelete;
+    private boolean canList;
+    private boolean canView;
+
+}
+
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/administration/RoleRepository.java =====
+```java
+package com.testPortal.test_management_api.administration;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
+
+
+
+@Repository
+public interface RoleRepository extends JpaRepository<Role,Integer> {
+    Optional<Role> findByRoleName(String roleName);
+    boolean existsByRoleName(String roleName);
+}
+
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/administration/RoleService.java =====
+```java
+package com.testPortal.test_management_api.administration;
+
+import com.testPortal.test_management_api.administration.dto.CreateRoleRequest;
+import com.testPortal.test_management_api.administration.dto.RoleDto;
+import com.testPortal.test_management_api.administration.dto.RoleModuleAccessDto;
+import com.testPortal.test_management_api.exception.ResourceNotFoundException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+
+@Service
+public class RoleService {
+    private final RoleRepository roleRepository;
+    private final ModuleRepository moduleRepository;
+
+    public RoleService(RoleRepository roleRepository,ModuleRepository moduleRepository){
+        this.roleRepository=roleRepository;
+        this.moduleRepository=moduleRepository;
+    }
+
+    //create role
+    @Transactional
+    public RoleDto createRoleDto(CreateRoleRequest request){
+        if(roleRepository.existsByRoleName(request.getRoleName())){
+            throw new RuntimeException("Role already exists!");
+        }
+        Role role = new Role();
+        role.setRoleName(request.getRoleName());
+
+        // Map the DTO checkboxes(permission of modules) into Entities
+        List<RoleModuleAccess> accesses = request.getModuleAccess().stream().map(accessDto ->{
+            Module module = moduleRepository.findById(accessDto.getModuleId())
+                    .orElseThrow(()-> new ResourceNotFoundException("Module not found with ID: "+accessDto.getModuleId()));
+
+            RoleModuleAccess access = new RoleModuleAccess();
+            access.setRole(role);
+            access.setModule(module);
+            access.setCanCreate(access.isCanCreate());
+            access.setCanEdit(accessDto.isCanEdit());
+            access.setCanDelete(accessDto.isCanDelete());
+            access.setCanList(accessDto.isCanList());
+            access.setCanView(accessDto.isCanView());
+
+            return access;
+        }).collect(Collectors.toList());
+        role.setModuleAccessList(accesses);
+        Role savedRole = roleRepository.save(role);
+        return convertToDto(savedRole);
+    }
+
+    //get all role
+    public List<RoleDto> getAllRoles(){
+        return roleRepository.findAll().stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
+    //get by id
+    public RoleDto getRoleById(Integer id){
+        Role role = roleRepository.findById(id)
+                .orElseThrow(()->new ResourceNotFoundException("Role not found with id: "+id));
+        // 1. Fetch EVERY module in the system
+        List<Module> allModules = moduleRepository.findAll();
+        // 2. Create a quick lookup map of the permissions this Role actually has saved in the DB
+        Map<Integer, RoleModuleAccess> savedAccessMap = role.getModuleAccessList().stream()
+                .collect(Collectors.toMap(access -> access.getModule().getId(), access -> access));
+        // 3. Build the complete matrix for the frontend
+        List<RoleModuleAccessDto> completeMatrix = allModules.stream().map(module -> {
+
+            if (savedAccessMap.containsKey(module.getId())) {
+                // Scenario A: The role has saved permissions for this module. Use them!
+                RoleModuleAccess access = savedAccessMap.get(module.getId());
+                return new RoleModuleAccessDto(
+                        module.getId(),
+                        module.getModuleName(),
+                        access.isCanCreate(),
+                        access.isCanEdit(),
+                        access.isCanDelete(),
+                        access.isCanList(),
+                        access.isCanView()
+                );
+            } else {
+                // Scenario B: The role has NO permissions for this module yet. Send all 'false'!
+                return new RoleModuleAccessDto(
+                        module.getId(),
+                        module.getModuleName(),
+                        false, false, false, false, false
+                );
+            }
+
+        }).collect(Collectors.toList());
+        // 4. Return the Role with the fully populated matrix
+        return new RoleDto(role.getId(), role.getRoleName(), completeMatrix);
+    }
+
+    //delete
+    public void deleteRole(Integer id){
+        if(!roleRepository.existsById(id)){
+            throw new ResourceNotFoundException("Role not found with id: "+id);
+        }
+        roleRepository.deleteById(id);
+    }
+    @Transactional
+    public RoleDto updateRole(Integer id, CreateRoleRequest request) {
+        // 1. Find the existing role
+        Role role = roleRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Role not found with ID: " + id));
+
+        // 2. Check if they are trying to rename it to a name that already exists (but ignore if it's the same name)
+        if (!role.getRoleName().equals(request.getRoleName()) && roleRepository.existsByRoleName(request.getRoleName())) {
+            throw new RuntimeException("Role name already exists!");
+        }
+
+        // 3. Update the Role Name
+        role.setRoleName(request.getRoleName());
+
+        // 4. CLEAR the old permissions. Hibernate's orphanRemoval will auto-delete them from the DB!
+        role.getModuleAccessList().clear();
+
+        // 5. Build the new permissions from the Request
+        List<RoleModuleAccess> newAccesses = request.getModuleAccess().stream().map(accessDto -> {
+            Module module = moduleRepository.findById(accessDto.getModuleId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Module not found with ID: " + accessDto.getModuleId()));
+
+            RoleModuleAccess access = new RoleModuleAccess();
+            access.setRole(role);
+            access.setModule(module);
+            access.setCanCreate(accessDto.isCanCreate());
+            access.setCanEdit(accessDto.isCanEdit());
+            access.setCanDelete(accessDto.isCanDelete());
+            access.setCanList(accessDto.isCanList());
+            access.setCanView(accessDto.isCanView());
+
+            return access;
+        }).collect(Collectors.toList());
+
+        // 6. Add the new permissions and save!
+        role.getModuleAccessList().addAll(newAccesses);
+
+        Role updatedRole = roleRepository.save(role);
+        return convertToDto(updatedRole);
+    }
+
+    private RoleDto convertToDto(Role role) {
+        List<RoleModuleAccessDto> accessDtos = role.getModuleAccessList().stream().map(access ->
+                new RoleModuleAccessDto(
+                        access.getModule().getId(),
+                        access.getModule().getModuleName(),
+                        access.isCanCreate(),
+                        access.isCanEdit(),
+                        access.isCanDelete(),
+                        access.isCanList(),
+                        access.isCanView()
+                )
+        ).collect(Collectors.toList());
+
+        return new RoleDto(role.getId(), role.getRoleName(), accessDtos);
+    }
+}
+
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/auth/AuthController.java =====
+```java
+package com.testPortal.test_management_api.auth; // Your package name
+
+import com.testPortal.test_management_api.security.CustomUserDetailsService;
+import com.testPortal.test_management_api.user.User;
+import com.testPortal.test_management_api.user.UserService; // Your package name
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.*;
+import com.testPortal.test_management_api.security.JwtTokenProvider; // Your package name
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Map;
+import java.util.stream.Collectors;
+
+@RestController
+@RequestMapping("/api/auth")
+public class AuthController {
+
+    private final UserService userService;
+    // --- NEW FIELDS TO INJECT ---
+    private final AuthenticationManager authenticationManager;
+    private final JwtTokenProvider tokenProvider;
+
+    ///  for Google authentication
+    private final GoogleAuthService googleAuthService;
+    private final CustomUserDetailsService customUserDetailsService;
+
+    // --- UPDATED CONSTRUCTOR TO ACCEPT NEW DEPENDENCIES ---
+    public AuthController(UserService userService,
+                          AuthenticationManager authenticationManager,
+                          JwtTokenProvider tokenProvider,GoogleAuthService googleAuthService, CustomUserDetailsService customUserDetailsService) {
+        this.userService = userService;
+        this.authenticationManager = authenticationManager;
+        this.tokenProvider = tokenProvider;
+        this.googleAuthService = googleAuthService;
+        this.customUserDetailsService = customUserDetailsService;
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<Map<String,String>> register(@Valid @RequestBody RegisterRequest request) {
+        userService.registerUser(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("message","User Registered Successfully"));
+    }
+
+    // --- NEW LOGIN ENDPOINT ---
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
+        // Use the AuthenticationManager to validate the username and password.
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        loginRequest.getUsername(),
+                        loginRequest.getPassword()
+                )
+        );
+
+        // Set the authentication object in the SecurityContext.
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        // Generate the JWT token.
+        String jwt = tokenProvider.generateToken(authentication);
+
+        // 4. --- NEW: Get User Details ---
+        // The "Principal" is the UserDetails object returned by your CustomUserDetailsService
+        UserDetails  userDetails = (UserDetails) authentication.getPrincipal();
+        String userName = userDetails.getUsername();
+//        String role = userDetails.getAuthorities().stream().findFirst().get().getAuthority();
+        User dbUser = userService.getUserByUsername(userName);
+        String role = "ROLE_" + dbUser.getRole().getRoleName();
+        // Return the token in the response.
+        return ResponseEntity.ok(new LoginResponse(jwt,userName,role));
+    }
+
+    @PostMapping("/google")
+    public ResponseEntity<LoginResponse> googleLogin(@Valid @RequestBody GoogleLoginRequest request){
+        // 1. Verify the Google token and get our DB User
+        User user = googleAuthService.verifyGoogleTokenAndProcessUser(request.getIdToken());
+
+        // 2. Load their UserDetails so Spring Security can use it
+        UserDetails userDetails = customUserDetailsService.loadUserByUsername(user.getUsername());
+
+        // 3. Create an Authentication object (bypassing the password check since Google authenticated them)
+        Authentication authentication= new UsernamePasswordAuthenticationToken(userDetails,null,userDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        //4 Generate standard jwt token
+        String jwt = tokenProvider.generateToken(authentication);
+
+        //5 Extract userName and role
+        String userName = userDetails.getUsername();
+
+//        String role = userDetails.getAuthorities().stream().findFirst().get().getAuthority();
+//        String role = userDetails.getAuthorities().stream()
+//                .map(auth -> auth.getAuthority())
+//                .filter(auth -> auth.startsWith("ROLE_")
+//                        && !auth.endsWith("_CREATE")
+//                        && !auth.endsWith("_EDIT")
+//                        && !auth.endsWith("_DELETE")
+//                        && !auth.endsWith("_VIEW")
+//                        && !auth.endsWith("_LIST"))
+//                .findFirst()
+//                .orElse("ROLE_USER");
+        User dbUser = userService.getUserByUsername(userName);
+        String role = "ROLE_" + dbUser.getRole().getRoleName();
+
+        //5 Return the token
+        return ResponseEntity.ok(new LoginResponse(jwt,userName,role));
+    }
+
+    @GetMapping("/permissions")
+    public Object getMyPermissions() {
+        // This will print out your exact authorities list in Postman!
+        return SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream().map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList());
+    }
+
+
+}
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/auth/GoogleAuthService.java =====
+```java
+package com.testPortal.test_management_api.auth;
+
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.gson.GsonFactory;
+import com.testPortal.test_management_api.user.User;
+import com.testPortal.test_management_api.user.UserRepository;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import java.util.Collections;
+import java.util.Optional;
+import java.util.UUID;
+
+
+@Service
+public class GoogleAuthService {
+        private final UserRepository userRepository;
+        private final PasswordEncoder passwordEncoder;
+        private final GoogleIdTokenVerifier verifier;
+
+        public GoogleAuthService(UserRepository userRepository, PasswordEncoder passwordEncoder,@Value("${app.google.client-id}")String clientId){
+            this.userRepository=userRepository;
+            this.passwordEncoder=passwordEncoder;
+            // Set up the Google Token Verifier with your Client ID
+            this.verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new GsonFactory())
+                    .setAudience(Collections.singleton(clientId))
+                    .build();
+        }
+
+        public User verifyGoogleTokenAndProcessUser(String idTokenString){
+            try{
+                // 1. verify the token with Google
+                GoogleIdToken idToken = verifier.verify(idTokenString);
+                if(idToken==null){
+                    throw new RuntimeException("Invalid Google Id token");
+                }
+
+                // 2. Extract the user's email from the valid token
+                GoogleIdToken.Payload payload = idToken.getPayload();
+                String email = payload.getEmail();
+
+                //3. Check if user already exits in database
+                Optional<User> userOptional =userRepository.findByUsername(email);
+                if(userOptional.isPresent()){
+                    return userOptional.get();
+                }else{
+                    // 4. User doesn't exist! Let's auto-register them.
+                    User newUser = new User();
+                    newUser.setUsername(email);
+                    // Because they use Google, they don't have a password.
+                    // We generate a long, random secure password so manual login is disabled for them,
+                    // but the database constraint (password cannot be null) is satisfied.
+
+                    String randomPassword = UUID.randomUUID().toString();
+                    newUser.setPassword(passwordEncoder.encode(randomPassword));
+
+                    //Default to  Tester Role
+//                    newUser.setRole("ROLE_TESTER");
+                    return userRepository.save(newUser);
+                }
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+}
+
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/auth/GoogleLoginRequest.java =====
+```java
+package com.testPortal.test_management_api.auth;
+
+import jakarta.validation.constraints.NotBlank;
+import lombok.Data;
+
+@Data
+public class GoogleLoginRequest {
+    @NotBlank(message = "ID token is required")
+    private String idToken;
+}
+
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/auth/LoginRequest.java =====
+```java
+package com.testPortal.test_management_api.auth;
+
+import jakarta.validation.constraints.NotBlank;
+import lombok.Data;
+
+@Data
+public class LoginRequest {
+    @NotBlank
+    private String username;
+
+    @NotBlank
+    private String password;
+}
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/auth/LoginResponse.java =====
+```java
+package com.testPortal.test_management_api.auth;
+
+import lombok.Data;
+
+@Data
+public class LoginResponse {
+    private String accessToken;
+    private String tokenType = "Bearer";
+    private String userName;
+    private String role;
+
+    public LoginResponse(String accessToken,String userName,String role)
+    {
+        this.accessToken = accessToken;
+        this.userName=userName;
+        this.role=role;
+    }
+}
+
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/auth/RegisterRequest.java =====
+```java
+package com.testPortal.test_management_api.auth;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import lombok.Data;
+
+@Data
+public class RegisterRequest {
+    @NotBlank
+    @Size(min=3,max=50)
+    private String username;
+
+    @NotBlank
+    @Size(min=6,max=100)
+    private String password;
+
+}
+
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/common/PagedResponse.java =====
+```java
+package com.testPortal.test_management_api.common;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import java.util.List;
+
+// <T> makes this class Generic. It can hold a list of Projects, TestCases, Users, anything!
+@Data
+@AllArgsConstructor
+public class PagedResponse<T> {
+    private List<T> content;
+    private PageInfo pageInfo;
+}
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/common/PageInfo.java =====
+```java
+package com.testPortal.test_management_api.common;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
+@Data
+@AllArgsConstructor
+public class PageInfo {
+    private int currentPage;
+    private int totalPages;
+    private long totalElements;
+    private int size;
+}
+
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/DataInitializer.java =====
+```java
+package com.testPortal.test_management_api;
+
+import com.testPortal.test_management_api.administration.*;
+import com.testPortal.test_management_api.administration.Module;
+import com.testPortal.test_management_api.user.User;
+import com.testPortal.test_management_api.user.UserRepository;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Component
+public class DataInitializer implements CommandLineRunner  {
+    private final ModuleRepository moduleRepository;
+    private final RoleRepository roleRepository;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+
+    public DataInitializer(ModuleRepository moduleRepository, RoleRepository roleRepository,
+                            UserRepository userRepository, PasswordEncoder passwordEncoder) {
+        this.moduleRepository = moduleRepository;
+        this.roleRepository = roleRepository;
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
+
+    @Override
+    @Transactional
+    public void run(String ...args) throws Exception{
+        if (moduleRepository.count() == 0) {
+            System.out.println("Seeding Modules...");
+            moduleRepository.save(new Module(null, "Projects", "/projects", "PROJECT"));
+            moduleRepository.save(new Module(null, "Test Suites", "/test-suites", "TESTSUITE"));
+            moduleRepository.save(new Module(null, "Test Cases", "/test-cases", "TESTCASE"));
+            moduleRepository.save(new Module(null, "Test Runs", "/test-runs", "TESTRUN"));
+            moduleRepository.save(new Module(null, "User Management", "/users", "USER_MGMT"));
+            moduleRepository.save(new Module(null, "Role Management", "/roles", "ROLE_MGMT"));
+        }
+        List<Module> allModules = moduleRepository.findAll();
+
+        // 2. CREATE SUPER_ADMIN ROLE (If it doesn't exist)
+        if (!roleRepository.existsByRoleName("SUPER_ADMIN")) {
+            System.out.println("Seeding SUPER_ADMIN Role...");
+            Role adminRole = new Role();
+            adminRole.setRoleName("SUPER_ADMIN");
+
+            List<RoleModuleAccess> adminAccess = new ArrayList<>();
+            for (Module mod : allModules) {
+                RoleModuleAccess access = new RoleModuleAccess();
+                access.setRole(adminRole);
+                access.setModule(mod);
+                // Admin gets TRUE for everything
+                access.setCanCreate(true); access.setCanEdit(true); access.setCanDelete(true);
+                access.setCanList(true); access.setCanView(true);
+                adminAccess.add(access);
+            }
+            adminRole.setModuleAccessList(adminAccess);
+            roleRepository.save(adminRole);
+        }
+
+        // 3. CREATE DEFAULT TESTER ROLE (So Registration doesn't crash)
+        if (!roleRepository.existsByRoleName("TESTER")) {
+            System.out.println("Seeding TESTER Role...");
+            Role testerRole = new Role();
+            testerRole.setRoleName("TESTER");
+
+            List<RoleModuleAccess> testerAccess = new ArrayList<>();
+            for (Module mod : allModules) {
+                RoleModuleAccess access = new RoleModuleAccess();
+                access.setRole(testerRole);
+                access.setModule(mod);
+
+                // Testers can't delete anything, and they can't access User/Role Management at all
+                if (mod.getModuleKey().equals("USER_MGMT") || mod.getModuleKey().equals("ROLE_MGMT")) {
+                    access.setCanCreate(false); access.setCanEdit(false); access.setCanDelete(false);
+                    access.setCanList(false); access.setCanView(false);
+                } else {
+                    access.setCanCreate(true); access.setCanEdit(true); access.setCanDelete(false);
+                    access.setCanList(true); access.setCanView(true);
+                }
+                testerAccess.add(access);
+            }
+            testerRole.setModuleAccessList(testerAccess);
+            roleRepository.save(testerRole);
+        }
+
+        // 4. CREATE DEFAULT ADMIN USER (If not exists)
+        if (userRepository.findByUsername("superadmin").isEmpty()) {
+            System.out.println("Seeding default Admin User...");
+            User adminUser = new User();
+            adminUser.setUsername("superadmin");
+            adminUser.setPassword(passwordEncoder.encode("superadmin123$"));
+            System.out.println("username is: "+adminUser.getUsername()+".............................");
+            Role superAdminRole = roleRepository.findByRoleName("SUPER_ADMIN").get();
+            adminUser.setRole(superAdminRole);
+
+            userRepository.save(adminUser);
+        }
+
+        System.out.println("Database Seeding Completed Successfully!");
+    }
+}
+
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/exception/ErrorResponse.java =====
+```java
+package com.testPortal.test_management_api.exception;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
+import java.time.LocalDateTime;
+
+@Data
+@AllArgsConstructor
+public class ErrorResponse {
+
+    // The timestamp when the error occurred.
+    private LocalDateTime timestamp;
+
+    // The HTTP status code (e.g., 404).
+    private int status;
+
+    // The HTTP reason phrase (e.g., "Not Found").
+    private String error;
+
+    // A more detailed, developer-friendly message explaining the error.
+    private String message;
+
+    // The API path where the error happened.
+    private String path;
+}
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/exception/GlobalExceptionHandler.java =====
+```java
+package com.testPortal.test_management_api.exception;
+
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.security.access.AccessDeniedException;
+
+import java.time.LocalDateTime;
+import java.util.stream.Collectors;
+
+// @RestControllerAdvice combines @ControllerAdvice and @ResponseBody.
+// It tells Spring that this class is designed to handle exceptions across the whole application.
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+
+    /**
+     * Handles our custom ResourceNotFoundException.
+     * This method is invoked whenever a controller method throws a ResourceNotFoundException.
+     */
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleResourceNotFoundException(
+            ResourceNotFoundException ex, HttpServletRequest request) {
+
+        // Create the standardized error response DTO.
+        ErrorResponse errorResponse = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.NOT_FOUND.value(),
+                HttpStatus.NOT_FOUND.getReasonPhrase(),
+                ex.getMessage(), // Use the message from our custom exception.
+                request.getRequestURI() // Get the path where the error occurred.
+        );
+
+        // Return the response with a 404 Not Found status.
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+    }
+
+    /**
+     * Handles validation errors from @Valid.
+     * This method is invoked when a DTO with validation annotations fails the checks.
+     */
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleValidationExceptions(
+            MethodArgumentNotValidException ex, HttpServletRequest request) {
+
+        // Validation can fail on multiple fields at once. We'll combine their messages.
+        String errorMessage = ex.getBindingResult().getFieldErrors().stream()
+                .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                .collect(Collectors.joining(", "));
+
+        ErrorResponse errorResponse = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                errorMessage, // The combined validation error messages.
+                request.getRequestURI()
+        );
+
+        // Return the response with a 400 Bad Request status.
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * Handles Spring Security AccessDeniedExceptions (e.g., when @PreAuthorize fails).
+     */
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException ex,HttpServletRequest request){
+        ErrorResponse errorResponse = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.FORBIDDEN.value(),
+                HttpStatus.FORBIDDEN.getReasonPhrase(),
+                "You do not have permission to perform this action.",
+                request.getRequestURI()
+        );
+        return new ResponseEntity<>(errorResponse,HttpStatus.FORBIDDEN);
+    }
+
+    /**
+     * A generic handler for any other unhandled exceptions.
+     * This acts as a safety net to prevent stack traces from being sent to the client.
+     */
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handleGenericException(
+            Exception ex, HttpServletRequest request) {
+
+        ErrorResponse errorResponse = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
+                "An unexpected internal server error occurred.", // A generic, safe message.
+                request.getRequestURI()
+        );
+
+        // It's good practice to log the actual exception for debugging purposes.
+        // In a real application, you would use a logging framework here.
+        ex.printStackTrace();
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+}
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/exception/ResourceNotFoundException.java =====
+```java
+package com.testPortal.test_management_api.exception;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
+
+// This annotation tells Spring to respond with a 404 NOT FOUND status
+// whenever this exception is thrown and not caught by a specific handler.
+@ResponseStatus(HttpStatus.NOT_FOUND)
+public class ResourceNotFoundException extends RuntimeException {
+
+    // A standard constructor that takes a message.
+    public ResourceNotFoundException(String message) {
+        super(message);
+    }
+}
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/OpenApiConfig.java =====
+```java
+package com.testPortal.test_management_api;
+
+
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
+import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+@OpenAPIDefinition(
+        info = @Info(
+                title = "Test Management API",
+                version = "1.0",
+                description = "Documentation for Test Management Portal API"
+        ),
+        // This tells Swagger that every endpoint requires this security scheme by default
+        security = @SecurityRequirement(name = "bearerAuth")
+)
+@SecurityScheme(
+        name = "bearerAuth",
+        description = "Log in via the /api/auth/login endpoint to get your JWT token, then paste it here.",
+        scheme = "bearer",
+        type = SecuritySchemeType.HTTP,
+        bearerFormat = "JWT",
+        in = SecuritySchemeIn.HEADER
+)
+public class OpenApiConfig {
+}
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/project/dto/CreateProjectRequest.java =====
+```java
+package com.testPortal.test_management_api.project.dto;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import lombok.Data;
+
+// This DTO defines the data required to CREATE or UPDATE a project.
+@Data
+public class CreateProjectRequest {
+
+    // @NotBlank checks that the value is not null and not just empty spaces.
+    // The `message` is what the user will see if this rule is broken.
+    @NotBlank(message = "Project name cannot be blank.")
+
+    // @Size checks that the string length is within a certain range.
+    @Size(min = 3, max = 100, message = "Project name must be between 3 and 100 characters.")
+    private String name;
+
+    @Size(max=500, message = "Description cannot be longer than 500wrds")
+    private String description;
+
+}
+
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/project/dto/ProjectResponse.java =====
+```java
+package com.testPortal.test_management_api.project.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
+
+// This DTO defines the data that our API will SEND back to the user.
+// We are explicitly defining what is "safe" to show the public.
+@Data
+@AllArgsConstructor
+
+public class ProjectResponse {
+    private Integer id;
+    private String name;
+    private String description;
+
+    //new fields
+    private long testSuiteCount;
+    private long testCaseCount;
+    private long testRunCount;
+}
+
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/project/Project.java =====
+```java
+package com.testPortal.test_management_api.project;
+//
+////Phase 1
+////import lombok.AllArgsConstructor;
+////import lombok.Data;
+////import lombok.NoArgsConstructor;
+////
+////// @Data is a Lombok annotation that generates all the boilerplate:
+////// getters, setters, toString(), equals(), and hashCode().
+////@Data
+////
+////// @AllArgsConstructor is a Lombok annotation that generates a constructor with all arguments.
+////@AllArgsConstructor
+////
+////// @NoArgsConstructor is a Lombok annotation that generates an empty constructor.
+////@NoArgsConstructor
+////
+////public class Project {
+////    private Integer id;
+////    private String name;
+////    private String description;
+////}
+//
+////Phase 2
+//import jakarta.persistence.*; // This is the new import for JPA annotations
+//
+//import lombok.AllArgsConstructor;
+//import lombok.Data;
+//import lombok.NoArgsConstructor;
+//
+//
+//
+////@Entity tells JPA that this class is a database entity and should be mapped to a table.
+//@Entity
+//// @Table(name = "projects") explicitly sets the name of our database table to "projects".
+//// If we didn't add this, JPA would name it "project" by default
+//@Table(name = "projects")
+//@Data
+//@AllArgsConstructor
+//@NoArgsConstructor
+//public class Project{
+//
+//    //@Id marks this field as the primary key for the table
+//    // Every entity MUST have a primary key
+//    @Id
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    private Integer id;
+//
+//    // By default, JPA will map this field to a column named "name" in the "projects" table.
+//    private String name;
+//
+//    // By default, JPA will map this field to a column named "description".
+//    private String description;
+//}
+//
+
+//Phase 3 -> to add testsuites in Project
+import com.testPortal.test_management_api.testsuite.TestSuite; // Import the TestSuite entity
+import com.fasterxml.jackson.annotation.JsonManagedReference; // We will use this later
+import com.testPortal.test_management_api.testrun.TestRun;
+import com.testPortal.test_management_api.user.User;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.List;
+
+@Entity
+@Table(name = "projects")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class Project {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+
+    private String name;
+
+    private String description;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_by_id")
+    private User createdBy;
+
+
+    // @OneToMany signifies that one Project can have many TestSuite entities.
+    // The 'mappedBy = "project"' attribute is the most important part here.
+    // It tells JPA: "This is the PARENT side of the relationship. Don't create
+    // a join column here. Instead, look at the 'project' field in the
+    // TestSuite class to find the foreign key configuration."
+
+    // 'cascade = CascadeType.ALL' means that if we save, update, or delete a Project,
+    // the related TestSuites will be affected as well. For example, deleting
+    // a project will automatically delete all of its test suites.
+    //
+    // 'orphanRemoval = true' is a companion to cascade. It ensures that if we
+    // remove a TestSuite from this list, it will be deleted from the database.
+
+    // This perfectly cascades down to Suites (and then down to Cases)
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TestSuite> testSuites; // (1)
+
+    // This will perfectly cascade down to Test Runs (and then down to Test Results)
+    @OneToMany(mappedBy = "project",cascade = CascadeType.ALL,orphanRemoval = true)
+    private List<TestRun> testRuns;
+}
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/project/ProjectController.java =====
+```java
+//--> This code is for first phase
+
+//package com.testPortal.test_management_api.project;
+//
+//import org.springframework.http.HttpStatus;
+//import org.springframework.web.bind.annotation.*;
+//import org.springframework.web.server.ResponseStatusException;
+//
+//import java.util.List;
+//
+//@RestController
+//@RequestMapping("/api/projects")
+//
+//public class ProjectController {
+//
+//    //we declare the service we need
+//    private final ProjectService projectService;
+//
+//    // This is called "Constructor Injection".
+//    // Spring sees that the controller needs a ProjectService to be created,
+//    // so it automatically provides the one we created earlier. This is a core concept of Spring.
+//    public ProjectController(ProjectService projectService){
+//        this.projectService=projectService;
+//    }
+//
+//    @GetMapping
+//    public List<Project>findAll(){
+//        return projectService.findAll();
+//    }
+//
+//    @PostMapping
+//    @ResponseStatus(HttpStatus.CREATED)
+//    public Project create(@RequestBody Project project){
+//        return projectService.create(project);
+//    }
+//
+//    // @GetMapping("/{id}") defines the URL. The part in curly braces {} is a variable.
+//    @GetMapping("/{id}")
+//    // The @PathVariable("id") annotation tells Spring to take the "id" value from the URL
+//    // and pass it into the 'id' parameter of our method.
+//    public Project findById(@PathVariable Integer id){
+//        return projectService.findById(id)
+//        // If the Optional from the service is empty, we throw an exception.
+//        // ResponseStatusException is a special Spring exception that automatically
+//        // sends back the correct HTTP 404 Not Found error code and a message.
+//                .orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Project not found with id:"+id));
+//    }
+//
+//    @PutMapping("/{id}")
+//    public Project update(@PathVariable Integer id, @RequestBody Project updateProject){
+//        // We use the service to update the project.
+//        // If the project is not found, the service will return an empty Optional,
+//        // and we throw a 404 error, just like in our findById method.
+//        return projectService.update(id,updateProject).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Project not found with id:"+id));
+//    }
+//
+//    // @DeleteMapping marks this method to handle HTTP DELETE requests.
+//    @DeleteMapping("/{id}")
+//    // @ResponseStatus(HttpStatus.NO_CONTENT) is important. It tells the client that the
+//    // operation was successful, but there is no data to return in the response body.
+//    // This is the standard for DELETE operations.
+//    @ResponseStatus(HttpStatus.NO_CONTENT)
+//    public void delete(@PathVariable Integer id){
+//        projectService.delete(id);
+//    }
+//
+//}
+
+//This is for 2nd Phase
+package com.testPortal.test_management_api.project;
+import com.testPortal.test_management_api.project.dto.CreateProjectRequest;
+import com.testPortal.test_management_api.project.dto.ProjectResponse;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+//import org.springframework.web.server.ResponseStatusException;
+ import com.testPortal.test_management_api.common.PagedResponse;
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/projects")
+public class ProjectController {
+
+    private final ProjectService projectService;
+
+    public ProjectController(ProjectService projectService) {
+        this.projectService = projectService;
+    }
+
+//    @GetMapping
+//    public List<ProjectResponse> findAll(){
+//        return projectService.findAll();
+//    }
+    //with pagination
+@GetMapping
+public PagedResponse<ProjectResponse> findAll(
+        @RequestParam(defaultValue = "false") boolean isAll,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size,
+        @RequestParam(defaultValue = "id") String sortBy,
+        @RequestParam(defaultValue = "asc") String sortDir
+) {
+        if(isAll){
+            return projectService.getAllProjects();
+        }
+    return projectService.findAll(page, size, sortBy, sortDir);
+}
+
+    @GetMapping("/{id}")
+    public ProjectResponse findById(@PathVariable Integer id){
+        return projectService.findById(id);
+    }
+
+    // The @Valid annotation is NEW. It tells Spring to check the validation rules
+    // we defined in the CreateProjectRequest DTO.
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasRole('SUPER_ADMIN') or hasAuthority('PROJECT_CREATE')")
+    public ProjectResponse create(@Valid @RequestBody CreateProjectRequest request){
+        return projectService.create(request);
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('SUPER_ADMIN') or hasAuthority('PROJECT_EDIT')")
+    public ProjectResponse update(@PathVariable Integer id, @Valid @RequestBody CreateProjectRequest request){
+        return projectService.update(id, request);
+    }
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('SUPER_ADMIN') or hasAuthority('PROJECT_DELETE')")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Integer id){
+        projectService.delete(id);
+    }
+}
+
+
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/project/ProjectRepository.java =====
+```java
+package com.testPortal.test_management_api.project;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+
+
+// @Repository tells Spring that this is a Repository bean. It's not strictly necessary
+// because JpaRepository is already a known type, but it's good practice for clarity.
+
+@Repository
+// We extend JpaRepository. We must provide two pieces of information in the angle brackets:
+// 1. The type of the Entity this repository manages (Project).
+// 2. The data type of the primary key of that Entity (Integer).
+
+public interface ProjectRepository extends JpaRepository<Project, Integer> {
+    // That's it!
+    // By extending JpaRepository, we automatically inherit methods like:
+    // - save(Project project) -> Creates or updates a project
+    // - findAll() -> Returns a List<Project>
+    // - findById(Integer id) -> Returns an Optional<Project>
+    // - deleteById(Integer id) -> Deletes a project
+    // ...and many more! Spring Data JPA writes the implementation for us.
+
+    //1. For the Paginated table
+    // This JPQL query uses a JOIN to link the Project to its TestRuns, and checks the assignee ID.
+    // 'DISTINCT' ensures that if a user has 5 runs in Project A, Project A only shows up once in the list.
+//    @Query("SELECT DISTINCT p FROM Project p JOIN p.testRuns tr WHERE tr.assignee.id = :userId")
+//    Page<Project> findProjectByAssigneeId(@Param("userId") Integer userId,Pageable pageable);
+
+    @Query("SELECT DISTINCT p FROM Project p LEFT JOIN p.testRuns tr WHERE tr.assignee.id = :userId OR p.createdBy.id = :userId")
+    Page<Project> findProjectByAssigneeId(@Param("userId") Integer userId, Pageable pageable);
+
+    // 2. For the isAll=true Dropdown Menu
+//    @Query("SELECT DISTINCT p FROM Project p JOIN p.testRuns tr WHERE tr.assignee.id = :userId")
+//    List<Project> findProjectsByAssigneeIdList(@Param("userId") Integer userId);
+
+    @Query("SELECT DISTINCT p FROM Project p LEFT JOIN p.testRuns tr WHERE tr.assignee.id = :userId OR p.createdBy.id = :userId")
+    List<Project> findProjectsByAssigneeIdList(@Param("userId") Integer userId);
+}
+
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/project/ProjectService.java =====
+```java
+package com.testPortal.test_management_api.project;
+
+// Phase 1
+//import org.springframework.stereotype.Service;
+//
+//import java.util.ArrayList;
+//import java.util.List;
+//import java.util.concurrent.atomic.AtomicInteger;
+//
+//import java.util.Optional;
+//// @Service tells Spring that this class is a "Service". It's a stereotype annotation
+//// that makes this class a candidate for dependency injection.
+//@Service
+//
+//public class ProjectService {
+//    // We move the list of projects here.
+//    // We use ArrayList because we need to be able to ADD new projects to this list.
+//    private final List<Project> projects = new ArrayList<>();
+//
+//    // This will act as our fake ID generator, like a database sequence.
+//    private final AtomicInteger counter = new AtomicInteger();
+//
+//
+//    // This block runs when the service is first created.
+//    // It pre-populates our list with some initial data.
+//    public ProjectService() {
+//        projects.add(new Project(counter.incrementAndGet(), "E-commerce Website", "Test suite for the new online store."));
+//        projects.add(new Project(counter.incrementAndGet(), "Mobile Banking App", "Test suite for the iOS and Android banking app."));
+//    }
+//
+//    /**
+//     * Returns a list of all projects.
+//     */
+//    public List<Project> findAll() {
+//        return projects;
+//    }
+//
+//    /**
+//     * Creates a new project.
+//     * @param project The project data to create.
+//     * @return The newly created project with its assigned ID.
+//     */
+//    public Project create(Project project) {
+//        // In a real app, the database would set the ID. Here, we set it manually.
+//        project.setId(counter.incrementAndGet());
+//        projects.add(project);
+//        return project;
+//    }
+//
+//    /*
+//     * Finds a single project by its ID.
+//     * @param id The ID of the project to find.
+//     * @return An Optional containing the project if found, otherwise an empty Optional.
+//     */
+//    public Optional<Project> findById(Integer id){
+//        return projects.stream().filter(p->p.getId().equals(id)).findFirst();
+//    }
+//
+//    /*
+//     * Updates an existing project.
+//     * @param id The ID of the project to update.
+//     * @param updatedProject The project data with the new values.
+//     * @return An Optional containing the updated project if it was found, otherwise an empty Optional.
+//     */
+//    public Optional<Project> update(Integer id, Project updatedProject){
+//        // First, find the existing project.
+//        Optional<Project> existingProjectOpt = findById(id);
+//
+//        //if the project exits, update it
+//        existingProjectOpt.ifPresent(existingProject->{
+//            // Find the index of the existing project in the list.
+//            existingProject.setName(updatedProject.getName());
+//            existingProject.setDescription(updatedProject.getDescription());
+//        });
+//        return existingProjectOpt;
+//
+//    }
+//
+//    /**
+//     * Deletes a project by its ID.
+//     * @param id The ID of the project to delete.
+//     */
+//    public void delete(Integer id){
+//        // The removeIf method is a clean way to remove an element from a list
+//        // that matches a specific condition.
+//        // It will iterate through the list and remove any project where the ID matches.
+//        projects.removeIf(project -> project.getId().equals(id));
+//    }
+//
+//}
+
+//Phase 2
+//
+//import com.testPortal.test_management_api.project.dto.CreateProjectRequest;
+//import com.testPortal.test_management_api.project.dto.ProjectResponse;
+//import org.springframework.stereotype.Service;
+//
+//import java.util.ArrayList;
+//import java.util.List;
+//import java.util.Optional;
+//import java.util.concurrent.atomic.AtomicInteger;
+//import java.util.stream.Collectors;
+//
+//@Service
+//public class ProjectService {
+//    private final List<Project> projects = new ArrayList<>();
+//    private final AtomicInteger counter = new AtomicInteger();
+//
+//    public ProjectService() {
+//        projects.add(new Project(counter.incrementAndGet(), "E-commerce Website", "Test suite for the new online store."));
+//        projects.add(new Project(counter.incrementAndGet(), "Mobile Banking App", "Test suite for the iOS and Android banking app."));
+//    }
+//
+//    // CHANGE: Now returns List<ProjectResponse>
+//    public List<ProjectResponse> findAll() {
+//        // This is the translation part.
+//        // We use a Java Stream to go through each 'Project' in our list,
+//        // create a new 'ProjectResponse' from it, and collect them into a new list.
+//        return projects.stream()
+//                .map(project -> new ProjectResponse(project.getId(), project.getName(), project.getDescription()))
+//                .collect(Collectors.toList());
+//    }
+//
+//    // CHANGE: Now returns Optional<ProjectResponse>
+//    public Optional<ProjectResponse> findById(Integer id) {
+//        return projects.stream()
+//                .filter(p -> p.getId().equals(id))
+//                .findFirst()
+//                .map(project -> new ProjectResponse(project.getId(), project.getName(), project.getDescription()));
+//    }
+//
+//    // CHANGE: Accepts a DTO and returns a DTO
+//    public ProjectResponse create(CreateProjectRequest request) {
+//        // Translate from DTO to our internal Project model
+//        Project project = new Project();
+//        project.setId(counter.incrementAndGet());
+//        project.setName(request.getName());
+//        project.setDescription(request.getDescription());
+//        projects.add(project);
+//
+//        // Translate from our internal Project model back to a DTO for the response
+//        return new ProjectResponse(project.getId(), project.getName(), project.getDescription());
+//    }
+//
+//    // CHANGE: Accepts a DTO and returns an Optional<ProjectResponse>
+//    public Optional<ProjectResponse> update(Integer id, CreateProjectRequest request) {
+//        // Find the existing project
+//        return projects.stream()
+//                .filter(p -> p.getId().equals(id))
+//                .findFirst()
+//                .map(existingProject -> {
+//                    // Update the internal model
+//                    existingProject.setName(request.getName());
+//                    existingProject.setDescription(request.getDescription());
+//                    // Translate to a response DTO
+//                    return new ProjectResponse(existingProject.getId(), existingProject.getName(), existingProject.getDescription());
+//                });
+//    }
+//
+//    public void delete(Integer id) {
+//        projects.removeIf(project -> project.getId().equals(id));
+//    }
+//}
+
+//Phase 3
+
+import com.testPortal.test_management_api.project.dto.CreateProjectRequest;
+import com.testPortal.test_management_api.project.dto.ProjectResponse;
+import com.testPortal.test_management_api.user.User;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import com.testPortal.test_management_api.exception.ResourceNotFoundException; // Import the new exception
+import com.testPortal.test_management_api.testcase.TestCaseRepository;
+import com.testPortal.test_management_api.testrun.TestRunRepository;
+import com.testPortal.test_management_api.testsuite.TestSuiteRepository;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+
+//Pagination
+ import com.testPortal.test_management_api.common.PageInfo;
+ import com.testPortal.test_management_api.common.PagedResponse;
+ import org.springframework.data.domain.Page;
+ import org.springframework.data.domain.PageRequest;
+ import org.springframework.data.domain.Pageable;
+ import org.springframework.data.domain.Sort;
+
+import org.springframework.security.core.context.SecurityContextHolder;
+import com.testPortal.test_management_api.user.UserRepository;
+
+
+@Slf4j
+@Service
+public class ProjectService {
+
+    //1.Inject the repository instead of using a list.
+    private final ProjectRepository  projectRepository;
+
+    private final TestSuiteRepository testSuiteRepository;
+    private final TestCaseRepository testCaseRepository;
+    private final TestRunRepository testRunRepository;
+    private final UserRepository userRepository;
+
+    public ProjectService(ProjectRepository projectRepository,TestSuiteRepository testSuiteRepository,TestCaseRepository testCaseRepository,TestRunRepository testRunRepository,UserRepository userRepository){
+        this.projectRepository=projectRepository;
+        this.testSuiteRepository=testSuiteRepository;
+        this.testCaseRepository=testCaseRepository;
+        this.testRunRepository=testRunRepository;
+        this.userRepository=userRepository;
+    }
+
+    // NOTE: The hardcoded list, the AtomicInteger, and the constructor are all GONE!
+
+    //2.The findAll method is now a one-liner
+//    public List<ProjectResponse> findAll(){
+//        return projectRepository.findAll() //this gets all Project ENTITIES from the DB
+//                .stream()
+//                .map(this::convertToResponse) // Convert each Entity to a Response DTO
+//                .collect(Collectors.toList());
+//    }
+
+//    with pagination
+
+    public PagedResponse<ProjectResponse> findAll(int page, int size, String sortBy, String sortDir) {
+
+       // 1. Get current user
+        String currentUsername  = SecurityContextHolder.getContext().getAuthentication().getName();
+        User currentUser = userRepository.findByUsername(currentUsername).orElseThrow(()-> new RuntimeException(("User Not Found")));
+
+
+        // 2. Configure Sort
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name())
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        // 3. Create Pageable
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        // 4. Fetch from Repository (This returns the raw Entity Page)
+        // Page<Project> projectsPage = projectRepository.findAll(pageable);
+        Page<Project> projectsPage;
+
+        //6. Security Routing
+        if("SUPER_ADMIN".equals(currentUser.getRole().getRoleName())){
+            // Admins get to see everything
+            projectsPage = projectRepository.findAll(pageable);
+        }else{
+            // Testers ONLY see projects they have test runs in
+            projectsPage = projectRepository.findProjectByAssigneeId(currentUser.getId(),pageable);
+        }
+
+        // 6. Convert Entities to DTOs
+        List<ProjectResponse> content = projectsPage.getContent().stream()
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
+
+        // 7. Create our Custom PageInfo
+        PageInfo pageInfo = new PageInfo(
+                projectsPage.getNumber(),
+                projectsPage.getTotalPages(),
+                projectsPage.getTotalElements(),
+                projectsPage.getSize()
+        );
+
+        // 8. Return the combined response
+        return new PagedResponse<>(content, pageInfo);
+    }
+
+    public PagedResponse<ProjectResponse> getAllProjects(){
+        // 1. Get current user
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        User currentUser = userRepository.findByUsername(currentUsername)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        List<Project> projects;
+
+        // 2. SECURITY ROUTING
+        if ("SUPER_ADMIN".equals(currentUser.getRole().getRoleName())) {
+            // Admins get all projects
+            projects = projectRepository.findAll();
+        } else {
+            // Testers get only their projects (Requires Step 2 from our previous chat!)
+            projects = projectRepository.findProjectsByAssigneeIdList(currentUser.getId());
+            log.info("inside projects by user role testing");
+
+        }
+        List<ProjectResponse> content = projects.stream()
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
+
+        // 2. Wrap the complete list inside your PageInfo object!
+        PageInfo pageInfo = new PageInfo(
+                0, // Current Page is 0
+                1, // Total Pages is 1 (since everything is on this page)
+                content.size(), // Total Elements
+                content.size()  // Size of this page
+        );
+        // 3. Return the standard PagedResponse!
+        return new PagedResponse<>(content,pageInfo);
+        }
+
+    //3.The findById
+    public ProjectResponse findById(Integer id){
+        Project project = projectRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + id));
+        return convertToResponse(project);
+    }
+
+
+    //4. Create
+    public ProjectResponse create(CreateProjectRequest request){
+
+        // get the current logged-in user
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        User currentUser = userRepository.findByUsername(currentUsername)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        Project project = new Project();
+        project.setName(request.getName());
+        project.setDescription(request.getDescription());
+
+        //set the creator
+        project.setCreatedBy(currentUser);
+
+//        Project project = convertToEntity(request); // conver the request DTO to entity
+        Project saveProject = projectRepository.save(project); //save it ti DB
+        return convertToResponse(saveProject); //convert the saved entity back to response entity
+    }
+
+    //5. Update
+    public ProjectResponse update(Integer id, CreateProjectRequest request){
+        Project existingProject = projectRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + id));
+
+        existingProject.setName(request.getName());
+        existingProject.setDescription(request.getDescription());
+        Project updatedProject = projectRepository.save(existingProject);
+        return convertToResponse(updatedProject);
+    }
+
+
+    //6. Delete
+    public void delete(Integer id){
+        if(!projectRepository.existsById(id)){
+            throw new ResourceNotFoundException("Project not found with id: " + id);
+        }
+        projectRepository.deleteById(id);
+    }
+
+
+
+
+
+
+
+
+
+
+    // --- Helper Methods for DTO/Entity Conversion ---
+
+    private ProjectResponse convertToResponse(Project project) {
+
+        //get id of current project
+        Integer projectId =project.getId();
+
+        //call repository methods
+        long testSuiteCount = testSuiteRepository.countByProjectId(projectId);
+        long testCaseCount = testCaseRepository.countByTestSuiteProjectId(projectId);
+        long testRunCount = testRunRepository.countByProjectId(projectId);
+
+        return new ProjectResponse(project.getId(), project.getName(), project.getDescription(),testSuiteCount,testCaseCount,testRunCount);
+    }
+
+    private Project convertToEntity(CreateProjectRequest request) {
+        Project project = new Project();
+        project.setName(request.getName());
+        project.setDescription(request.getDescription());
+        return project;
+    }
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/security/CustomUserDetailsService.java =====
+```java
+package com.testPortal.test_management_api.security;
+
+import com.testPortal.test_management_api.administration.RoleModuleAccess;
+import com.testPortal.test_management_api.user.User;
+import com.testPortal.test_management_api.user.UserRepository;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+
+
+import java.util.Collections;
+import java.util.ArrayList;
+import java.util.List;
+
+@Service
+public class CustomUserDetailsService implements UserDetailsService  {
+
+    private final UserRepository userRepository;
+
+    public CustomUserDetailsService(UserRepository userRepository){
+        this.userRepository=userRepository;
+    }
+
+    // This is the only method we need to implement.
+    // Spring Security will call this method when a user tries to authenticate.
+    @Override
+    @Transactional
+    public UserDetails loadUserByUsername(String username) throws  UsernameNotFoundException{
+        // 1. Use our repository to find the user in our database.
+            User user = userRepository.findByUsername(username).orElseThrow(()-> new UsernameNotFoundException("user not found with the username:"+username));
+
+        List<GrantedAuthority> authorities = new ArrayList<>();
+
+        // 2. Add the base Role Name (e.g., "ROLE_SUPER_ADMIN" or "ROLE_TESTER")
+        // This acts as our skeleton key for Super Admins!
+        String roleName = user.getRole().getRoleName();
+        authorities.add(new SimpleGrantedAuthority("ROLE_" + roleName));
+
+        // 3. Loop through all the checkboxes for this role and generate granular permissions
+        if (user.getRole().getModuleAccessList() != null) {
+            for (RoleModuleAccess access : user.getRole().getModuleAccessList()) {
+                String moduleKey = access.getModule().getModuleKey(); // e.g., "PROJECT"
+
+                if (access.isCanCreate()) authorities.add(new SimpleGrantedAuthority(moduleKey + "_CREATE"));
+                if (access.isCanEdit())   authorities.add(new SimpleGrantedAuthority(moduleKey + "_EDIT"));
+                if (access.isCanDelete()) authorities.add(new SimpleGrantedAuthority(moduleKey + "_DELETE"));
+                if (access.isCanList())   authorities.add(new SimpleGrantedAuthority(moduleKey + "_LIST"));
+                if (access.isCanView())   authorities.add(new SimpleGrantedAuthority(moduleKey + "_VIEW"));
+            }
+        }
+        // 4. Return the UserDetails with the massive list of specific permissions
+        return new org.springframework.security.core.userdetails.User(
+                user.getUsername(),
+                user.getPassword(),
+                authorities
+        );
+    }
+
+}
+
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/security/JwtAuthenticationFilter.java =====
+```java
+package com.testPortal.test_management_api.security;
+
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import java.io.IOException;
+
+@Component
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
+    private final JwtTokenProvider tokenProvider;
+    private final CustomUserDetailsService customUserDetailsService;
+
+    public JwtAuthenticationFilter(JwtTokenProvider tokenProvider, CustomUserDetailsService customUserDetailsService) {
+        this.tokenProvider = tokenProvider;
+        this.customUserDetailsService = customUserDetailsService;
+    }
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain filterChain) throws ServletException, IOException {
+        // 1. Try to extract the JWT from the request header.
+        String jwt = tokenProvider.resolveToken(request);
+
+        // 2. If a token is found and is valid...
+        if (jwt != null && tokenProvider.validateToken(jwt)) {
+            // 3. ...get the username from the token.
+            String username = tokenProvider.getUsernameFromJWT(jwt);
+
+            // 4. Load the user's details from the database.
+            UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
+
+            // 5. Create an authentication object.
+            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                    userDetails, null, userDetails.getAuthorities());
+            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+            // 6. Set the authentication object in Spring Security's context.
+            // This is the crucial step that "authenticates" the user for this request.
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+        }
+
+        // 7. Continue the filter chain.
+        filterChain.doFilter(request, response);
+    }
+}
+
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/security/JwtProperties.java =====
+```java
+package com.testPortal.test_management_api.security;
+
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
+import lombok.Data;
+
+@Component
+@ConfigurationProperties(prefix = "app.jwt")
+@Data
+public class JwtProperties {
+    private String secret;
+    private int expirationMs;
+}
+
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/security/JwtTokenProvider.java =====
+```java
+package com.testPortal.test_management_api.security;
+import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
+
+import java.security.Key;
+import java.util.Date;
+
+@Component
+public class JwtTokenProvider {
+
+    // --- DELETED THE OLD @Value FIELDS ---
+
+    private final Key key;
+    private final long jwtExpirationInMs; // Changed to long for safety
+
+    // --- UPDATED CONSTRUCTOR ---
+    public JwtTokenProvider(JwtProperties jwtProperties) {
+        this.key = Keys.hmacShaKeyFor(jwtProperties.getSecret().getBytes());
+        this.jwtExpirationInMs = jwtProperties.getExpirationMs();
+    }
+
+    // --- NO MORE @PostConstruct or init() METHOD ---
+
+    public String generateToken(Authentication authentication) {
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        Date now = new Date();
+        // Use the field directly
+        Date expiryDate = new Date(now.getTime() + jwtExpirationInMs);
+
+        return Jwts.builder()
+                .setSubject(userDetails.getUsername())
+                .setIssuedAt(new Date())
+                .setExpiration(expiryDate)
+                .signWith(key, SignatureAlgorithm.HS512)
+                .compact();
+    }
+
+    // ... the rest of the file (getUsernameFromJWT, validateToken, resolveToken) remains exactly the same ...
+
+    public String getUsernameFromJWT(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+        return claims.getSubject();
+    }
+
+    public boolean validateToken(String authToken) {
+        try {
+            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(authToken);
+            return true;
+        } catch (JwtException | IllegalArgumentException e) {
+            // Log errors in a real app
+        }
+        return false;
+    }
+
+    public String resolveToken(HttpServletRequest request) {
+        String bearerToken = request.getHeader("Authorization");
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7);
+        }
+        return null;
+    }
+}
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/security/SecurityConfig.java =====
+```java
+package com.testPortal.test_management_api.security;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
+
+@Configuration
+@EnableWebSecurity
+@EnableMethodSecurity
+public class SecurityConfig {
+
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final CustomUserDetailsService customUserDetailsService;
+
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter, CustomUserDetailsService customUserDetailsService) {
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.customUserDetailsService = customUserDetailsService;
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public AuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(customUserDetailsService);
+        authProvider.setPasswordEncoder(passwordEncoder());
+        return authProvider;
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(
+            AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+                // 1. ENABLE CORS HERE
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                // 2. Disable CSRF (since we use JWTs)
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth
+                        // Allow Login/Register and H2 Console
+                        .requestMatchers("/h2-ui/**", "/api/auth/**", "/v3/api-docs/**",     // <--- ADDED: OpenAPI JSON data
+                                "/swagger-ui/**",      // <--- ADDED: Swagger UI HTML pages
+                                "/swagger-ui.html" ).permitAll()
+                        // Protect everything else
+                        .anyRequest().authenticated()
+                )
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authenticationProvider(authenticationProvider());
+
+        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
+        // Fix for H2 Console display
+        http.headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()));
+
+        return http.build();
+    }
+
+    // --- 3. DEFINE CORS RULES ---
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+
+        // Allow requests from your Angular App
+        configuration.setAllowedOrigins(List.of("http://localhost:4200","https://test-management-n3vjxx7sa-diwakar-2112s-projects.vercel.app/","https://69ad2c73547b70df8e1305b5--qa-test-lodge.netlify.app/","https://qa-test-lodge.netlify.app/"));
+
+        // Allow these HTTP methods
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+
+        // Allow the Authorization header (where we send the JWT)
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+
+        // Allow credentials (cookies/auth headers)
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration); // Apply to ALL endpoints
+        return source;
+    }
+}
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/testcase/dto/CreateTestCaseRequest.java =====
+```java
+package com.testPortal.test_management_api.testcase.dto;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import lombok.Data;
+
+
+@Data
+
+public class CreateTestCaseRequest {
+
+    @NotBlank(message = "Test case can't be blank.")
+    @Size(max = 255,message = "Title can't be longer than 255 character")
+    private String title;
+
+    private String description;
+
+    private String steps;
+
+    private String expectedResult;
+}
+
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/testcase/dto/TestCaseResponse.java =====
+```java
+package com.testPortal.test_management_api.testcase.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+
+@Data
+@AllArgsConstructor
+public class TestCaseResponse {
+
+    private Integer id;
+    private String title;
+    private String description;
+    private String steps;
+    private String expectedResult;
+    private Integer testSuitId;  // Include the parent's ID for context
+
+}
+
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/testcase/dto/UpdateTestCaseRequest.java =====
+```java
+package com.testPortal.test_management_api.testcase.dto;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import lombok.Data;
+
+@Data
+public class UpdateTestCaseRequest {
+
+    @NotBlank(message = "Test case title cannot be blank.")
+    @Size(max = 255, message = "Title cannot be longer than 255 characters.")
+    private String title;
+
+    private String description;
+
+    private String steps;
+
+    private String expectedResult;
+}
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/testcase/TestCase.java =====
+```java
+package com.testPortal.test_management_api.testcase;
+
+import com.testPortal.test_management_api.testsuite.TestSuite;
+
+import jakarta.annotation.Nullable;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Null;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+
+@Entity
+@Table(name = "test_cases")
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class TestCase {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+
+    @Column(nullable = false)
+    private String title;
+
+    private String description;
+
+    // By default, a String maps to VARCHAR(255), which can be too short for steps.
+    // @Column(columnDefinition = "TEXT") tells the database to use a more appropriate
+    // data type for potentially long text.
+    @Column(columnDefinition = "TEXT")
+    private String steps;
+
+    @Column(columnDefinition = "TEXT")
+    private String expectedResult;
+
+
+    // --- RELATIONSHIP MAPPING ---
+
+    // This is the "Many" side. Many TestCases belong to one TestSuite.
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "test_suite_id", referencedColumnName = "id", nullable = false)
+    private TestSuite testSuite;
+
+}
+
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/testcase/TestCaseController.java =====
+```java
+package com.testPortal.test_management_api.testcase;
+
+import com.testPortal.test_management_api.testcase.dto.CreateTestCaseRequest;
+import com.testPortal.test_management_api.testcase.dto.TestCaseResponse;
+import com.testPortal.test_management_api.testcase.dto.UpdateTestCaseRequest;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.server.ResponseStatusException;
+
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+ import com.testPortal.test_management_api.common.PagedResponse;
+
+
+
+@RestController
+@RequestMapping({"/api/testsuites/{suiteId}/testcase","/api/testcases"})
+public class TestCaseController {
+    private final TestCaseService testCaseService;
+
+    public TestCaseController(TestCaseService testCaseService){
+        this.testCaseService=testCaseService;
+    }
+
+    //POST /api/testsuites/{suiteId}/testcase
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasRole('SUPER_ADMIN') or hasAuthority('TESTCASE_CREATE')")
+    public TestCaseResponse createTestCase(@PathVariable Integer suiteId,@Valid @RequestBody CreateTestCaseRequest request){
+        return testCaseService.createTestCaseForSuite(suiteId,request);
+    }
+
+    //GET
+//    @GetMapping
+//    public List<TestCaseResponse> getTestCaseForSuite(@PathVariable Integer suiteId){
+//        return testCaseService.getTestCaseForSuit(suiteId);
+//    }
+//    with pagination
+    @GetMapping
+    public PagedResponse<TestCaseResponse> getTestCaseForSuite(
+            @PathVariable Integer suiteId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDir
+    ) {
+        return testCaseService.getTestCasesForSuite(suiteId, page, size, sortBy, sortDir);
+    }
+
+    @PutMapping("/{caseId}")
+    @PreAuthorize("hasRole('SUPER_ADMIN') or hasAuthority('TESTCASE_EDIT')")
+    public TestCaseResponse updateTestCase(@PathVariable Integer caseId, @Valid @RequestBody UpdateTestCaseRequest request) {
+        return testCaseService.updateTestCase(caseId, request)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "TestCase not found with id: " + caseId));
+    }
+
+    @DeleteMapping("/{caseId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT) // Standard response for a successful delete
+    @PreAuthorize("hasRole('SUPER_ADMIN') or hasAuthority('TESTCASE_DELETE')")
+    public void deleteTestCase(@PathVariable Integer caseId) {
+        boolean deleted = testCaseService.deleteTestCase(caseId);
+        if (!deleted) {
+            // If the service returns false, it means the test case was not found.
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "TestCase not found with id: " + caseId);
+        }
+    }
+
+
+
+}
+
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/testcase/TestCaseRepository.java =====
+```java
+package com.testPortal.test_management_api.testcase;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
+@Repository
+public interface TestCaseRepository extends JpaRepository<TestCase, Integer> {
+    // Using the same derived query method pattern as before.
+    // Spring will automatically create a query that finds all TestCase entities
+    // where the 'testSuite' field's 'id' property matches the given testSuiteId.
+    // SQL Equivalent: "SELECT * FROM test_cases WHERE test_suite_id = ?"
+    List<TestCase> findByTestSuiteId(Integer testSuiteId);
+    Page<TestCase> findByTestSuiteId(Integer testSuiteId, Pageable pageable);
+
+    long countByTestSuiteProjectId(Integer projectId);
+    long countByTestSuiteId(Integer testSuiteId);
+
+}
+
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/testcase/TestCaseService.java =====
+```java
+package com.testPortal.test_management_api.testcase;
+
+import com.testPortal.test_management_api.exception.ResourceNotFoundException;
+import com.testPortal.test_management_api.testcase.dto.CreateTestCaseRequest;
+import com.testPortal.test_management_api.testcase.dto.TestCaseResponse;
+import com.testPortal.test_management_api.testcase.dto.UpdateTestCaseRequest;
+import com.testPortal.test_management_api.testsuite.TestSuite;
+import com.testPortal.test_management_api.testsuite.TestSuiteRepository;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+
+//for pagination
+ import com.testPortal.test_management_api.common.PageInfo;
+ import com.testPortal.test_management_api.common.PagedResponse;
+ import org.springframework.data.domain.Page;
+ import org.springframework.data.domain.PageRequest;
+ import org.springframework.data.domain.Pageable;
+ import org.springframework.data.domain.Sort;
+
+
+@Service
+public class TestCaseService {
+    // We need the repositories for both the child (TestCase) and the parent (TestSuite).
+    private final TestCaseRepository testCaseRepository;
+    private final TestSuiteRepository testSuiteRepository;
+
+    public TestCaseService(TestCaseRepository testCaseRepository,TestSuiteRepository testSuiteRepository){
+        this.testCaseRepository=testCaseRepository;
+        this.testSuiteRepository=testSuiteRepository;
+    }
+    /**
+     * Creates a new TestCase and associates it with a parent TestSuite.
+     */
+    public TestCaseResponse createTestCaseForSuite(Integer suiteId,CreateTestCaseRequest request){
+        // 1. Find the parent TestSuite. If it doesn't exist, throw a 404 error.
+        TestSuite testSuite = testSuiteRepository.findById(suiteId).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"TestSuite not found with id:"+suiteId));
+        // 2. Create a new TestCase entity from the DTO.
+        TestCase newTestCase  = convertToEntity(request);
+
+        // 3. Set the parent TestSuite on the child to create the link.
+        newTestCase.setTestSuite(testSuite);
+
+        // 4. Save the new TestCase to the database.
+        TestCase savedTestCase = testCaseRepository.save(newTestCase);
+
+        //5 convert the saved entity to response DTO and return
+        return convertToResponse(savedTestCase);
+    }
+    /**
+     * Finds all TestCases for a given TestSuite ID.
+     */
+//    public List<TestCaseResponse> getTestCaseForSuit(Integer suiteId){
+//        //check if the parent test suite existed
+//        if(!testSuiteRepository.existsById(suiteId)){
+//            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Testsuite not found with the id:"+suiteId);
+//        }
+//
+//        // 2. Use  custom repository method to find all the children.
+//        return  testCaseRepository.findByTestSuiteId(suiteId).stream()
+//                .map(this::convertToResponse)
+//                .collect(Collectors.toList());
+//
+//    }
+
+//    with pagination
+    public PagedResponse<TestCaseResponse> getTestCasesForSuite(Integer suiteId, int page, int size, String sortBy, String sortDir) {
+        if (!testSuiteRepository.existsById(suiteId)) {
+            throw new ResourceNotFoundException("TestSuite not found with id: " + suiteId);
+        }
+
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name())
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<TestCase> testCasePage = testCaseRepository.findByTestSuiteId(suiteId, pageable);
+
+        List<TestCaseResponse> content = testCasePage.getContent().stream()
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
+
+        PageInfo pageInfo = new PageInfo(
+                testCasePage.getNumber(),
+                testCasePage.getTotalPages(),
+                testCasePage.getTotalElements(),
+                testCasePage.getSize()
+        );
+
+        return new PagedResponse<>(content, pageInfo);
+    }
+    public Optional<TestCaseResponse> updateTestCase(Integer caseId, UpdateTestCaseRequest request) {
+        // 1. Find the existing test case in the database by its unique ID.
+        return testCaseRepository.findById(caseId)
+                .map(existingTestCase -> { // .map() executes this code block if the test case is found.
+                    // 2. Update the properties of the found entity with the data from the request.
+                    existingTestCase.setTitle(request.getTitle());
+                    existingTestCase.setDescription(request.getDescription());
+                    existingTestCase.setSteps(request.getSteps());
+                    existingTestCase.setExpectedResult(request.getExpectedResult());
+
+                    // 3. Save the updated entity back to the database.
+                    TestCase updatedTestCase = testCaseRepository.save(existingTestCase);
+
+                    // 4. Convert the updated entity to a response DTO and return it.
+                    return convertToResponse(updatedTestCase);
+                });
+    }
+    public boolean deleteTestCase(Integer caseId) {
+        // 1. Check if a test case with the given ID exists in the database.
+        if (testCaseRepository.existsById(caseId)) {
+            // 2. If it exists, delete it.
+            testCaseRepository.deleteById(caseId);
+            return true;
+        }
+        // 3. If it does not exist, do nothing and return false.
+        return false;
+    }
+
+
+//    helper methods
+
+    private TestCase convertToEntity(CreateTestCaseRequest request) {
+        TestCase testCase = new TestCase();
+        // Use the correct getter methods from the request DTO
+        testCase.setTitle(request.getTitle());
+        testCase.setDescription(request.getDescription());
+        testCase.setSteps(request.getSteps());
+        testCase.setExpectedResult(request.getExpectedResult());
+        return testCase;
+    }
+    private TestCaseResponse convertToResponse(TestCase testCase) {
+        return new TestCaseResponse(
+                testCase.getId(),
+                testCase.getTitle(),
+                testCase.getDescription(),
+                testCase.getSteps(),
+                testCase.getExpectedResult(),
+                testCase.getTestSuite().getId() // Get the parent ID
+        );
+    }
+}
+
+
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/TestManagementApiApplication.java =====
+```java
+package com.testPortal.test_management_api;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class TestManagementApiApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(TestManagementApiApplication.class, args);
+	}
+
+}
+
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/testrun/dto/CreateTestRunRequest.java =====
+```java
+package com.testPortal.test_management_api.testrun.dto;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import lombok.Data;
+
+@Data
+public class CreateTestRunRequest {
+
+    @NotBlank(message = "Test run name cannot be blank.")
+    @Size(min = 3, max = 150, message = "Test run name must be between 3 and 150 characters.")
+    private String name;
+}
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/testrun/dto/TestResultResponse.java =====
+```java
+package com.testPortal.test_management_api.testrun.dto;
+
+import com.testPortal.test_management_api.testrun.TestResultStatus;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
+@Data
+@AllArgsConstructor
+public class TestResultResponse {
+    private Integer id;
+    private TestResultStatus status;
+    private String comments;
+    private String title;
+    private String description;
+    private String steps;
+    private String expectedResult;
+}
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/testrun/dto/TestRunResponse.java =====
+```java
+package com.testPortal.test_management_api.testrun.dto;
+
+import com.testPortal.test_management_api.testrun.TestRunStatus;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Data
+@AllArgsConstructor
+public class TestRunResponse {
+    private Integer id;
+    private String name;
+    private TestRunStatus status;
+    private LocalDateTime createdAt;
+    private Integer projectId;
+    private AssigneeResponse assignee; // Nested DTO for assignee info
+    private List<TestResultResponse> testResults;
+
+    // A simple inner DTO to avoid exposing the entire User entity
+    @Data
+    @AllArgsConstructor
+    public static class AssigneeResponse {
+        private Integer id;
+        private String username;
+    }
+}
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/testrun/dto/TestRunSearchCriteria.java =====
+```java
+package com.testPortal.test_management_api.testrun.dto;
+
+import com.testPortal.test_management_api.testrun.TestRunStatus;
+import lombok.Data;
+
+@Data
+public class TestRunSearchCriteria {
+    private String name;
+    private Integer projectId;
+    private TestRunStatus status;
+    private Integer assigneeId;
+}
+
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/testrun/dto/UpdateTestResultRequest.java =====
+```java
+package com.testPortal.test_management_api.testrun.dto;
+
+import com.testPortal.test_management_api.testrun.TestResultStatus;
+import jakarta.validation.constraints.NotNull;
+import lombok.Data;
+
+@Data
+public class UpdateTestResultRequest {
+
+    @NotNull(message = "Status cannot be null.")
+    private TestResultStatus status;
+
+    private String comments;
+}
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/testrun/TestResult.java =====
+```java
+package com.testPortal.test_management_api.testrun;
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Entity
+@Table(name = "test_results")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class TestResult {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+
+    @Enumerated(EnumType.STRING) // Stores the status as a String (e.g., "PASS", "FAIL")
+    @Column(nullable = false)
+    private TestResultStatus status;
+
+    @Column(columnDefinition = "TEXT")
+    private String comments;
+
+    // --- Snapshot of the original TestCase ---
+    // We copy this data to keep a historical record. Even if the original
+    // TestCase changes later, the record of this run will not be affected.
+    @Column(nullable = false)
+    private String title;
+
+    @Column(columnDefinition = "TEXT")
+    private String description;
+
+    @Column(columnDefinition = "TEXT")
+    private String steps;
+
+    @Column(columnDefinition = "TEXT")
+    private String expectedResult;
+
+    // --- Relationship ---
+
+    // Establishes that many TestResults must belong to one TestRun.
+    // The "test_run_id" column will be created in our "test_results" table
+    // to link back to the parent TestRun.
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "test_run_id", referencedColumnName = "id", nullable = false)
+    private TestRun testRun;
+}
+
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/testrun/TestResultRepository.java =====
+```java
+package com.testPortal.test_management_api.testrun;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+// THIS IS THE CRITICAL LINE THAT WAS LIKELY MISSING OR INCORRECT
+public interface TestResultRepository extends JpaRepository<TestResult, Integer> {
+    // By extending JpaRepository, this interface automatically inherits the findById() method,
+    // as well as save(), deleteById(), findAll(), and many others.
+}
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/testrun/TestResultStatus.java =====
+```java
+package com.testPortal.test_management_api.testrun;
+
+public enum TestResultStatus {
+    NOT_RUN,
+    PASS,
+    FAIL,
+    BLOCKED,
+    SKIPPED
+}
+
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/testrun/TestRun.java =====
+```java
+package com.testPortal.test_management_api.testrun;
+
+import com.testPortal.test_management_api.project.Project;
+import com.testPortal.test_management_api.user.User;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Entity
+@Table(name="test_runs")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class TestRun {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+
+    @Column(nullable = false)
+    private String name;
+
+    @Enumerated(EnumType.STRING) // Store the enum value as a String (e.g., "IN_PROGRESS")
+    @Column(nullable = false)
+    private TestRunStatus status;
+
+    @CreationTimestamp // Automatically set the creation time when a new run is created
+    @Column(updatable = false)
+    private LocalDateTime createdAt;
+
+    // --- Relationships ---
+
+    // Establishes that many TestRuns can belong to one Project.
+    // The "project_id" column will be created in our "test_runs" table.
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "project_id", referencedColumnName = "id", nullable = false)
+    private Project project;
+
+    // A run can be assigned to one user.
+    // The "assignee_id" column will be created. It can be null if the run is unassigned.
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "assignee_id", referencedColumnName = "id")
+    private User assignee;
+
+
+    // A TestRun has a list of TestResults.
+    // If we delete a TestRun, all of its associated results will be deleted too (cascade = CascadeType.ALL).
+    @OneToMany(mappedBy = "testRun", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TestResult> testResults;
+}
+
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/testrun/TestRunController.java =====
+```java
+package com.testPortal.test_management_api.testrun;
+
+import com.testPortal.test_management_api.common.PagedResponse;
+import com.testPortal.test_management_api.testrun.dto.*;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping({"/api/testsuites/{suiteId}/testruns", "/api/testruns"})
+public class TestRunController {
+
+    private final TestRunService testRunService;
+
+    public TestRunController(TestRunService testRunService) {
+        this.testRunService = testRunService;
+    }
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasRole('SUPER_ADMIN') or hasAuthority('TESTRUN_CREATE')")
+    public TestRunResponse startTestRun(@PathVariable Integer suiteId, @Valid @RequestBody CreateTestRunRequest request) {
+        return testRunService.startTestRunFromSuite(suiteId, request);
+    }
+
+    @PostMapping("/{runId}/assign")
+    @PreAuthorize("hasRole('SUPER_ADMIN') or hasAuthority('TESTRUN_EDIT')")
+    public TestRunResponse assignTestRun(@PathVariable Integer runId, @RequestParam Integer userId) {
+        return testRunService.assignTestRun(runId, userId);
+    }
+
+    // SIMPLIFIED: No more .orElseThrow()
+    @GetMapping("/{runId}")
+    public TestRunResponse getTestRunDetails(@PathVariable Integer runId) {
+        return testRunService.getTestRunDetails(runId);
+    }
+
+    @PutMapping("/results/{resultId}")
+    @PreAuthorize("hasRole('SUPER_ADMIN') or hasAuthority('TESTRUN_EDIT')")
+    public TestResultResponse updateResult(@PathVariable Integer resultId, @Valid @RequestBody UpdateTestResultRequest request) {
+        return testRunService.updateTestResult(resultId, request);
+    }
+
+    @GetMapping
+    public PagedResponse<TestRunResponse> getAllTestRuns(
+            TestRunSearchCriteria searchCriteria,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String soryBy,
+            @RequestParam(defaultValue = "desc") String sortDir
+    ){
+        return testRunService.getAllTestRuns(searchCriteria,page,size,soryBy,sortDir);
+    }
+}
+
+
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/testrun/TestRunRepository.java =====
+```java
+package com.testPortal.test_management_api.testrun;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface TestRunRepository extends JpaRepository<TestRun, Integer>, JpaSpecificationExecutor<TestRun> {
+    // Spring Data JPA will provide all the standard CRUD methods like findById(), save(), etc.
+    // We can add custom query methods here later if needed.
+
+    long countByProjectId(Integer projectId);
+}
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/testrun/TestRunService.java =====
+```java
+package com.testPortal.test_management_api.testrun;
+
+
+import com.testPortal.test_management_api.exception.ResourceNotFoundException; // Import!
+import com.testPortal.test_management_api.testsuite.TestSuite;
+import com.testPortal.test_management_api.testsuite.TestSuiteRepository;
+import com.testPortal.test_management_api.testrun.dto.*;
+import com.testPortal.test_management_api.user.User;
+import com.testPortal.test_management_api.user.UserRepository;
+import org.aspectj.weaver.ast.Test;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.parameters.P;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+import com.testPortal.test_management_api.common.PageInfo;
+import com.testPortal.test_management_api.common.PagedResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+
+@Service
+public class TestRunService {
+
+    private final TestRunRepository testRunRepository;
+    private final TestResultRepository testResultRepository;
+    private final TestSuiteRepository testSuiteRepository;
+    private final UserRepository userRepository;
+
+    public TestRunService(TestRunRepository testRunRepository,
+                          TestResultRepository testResultRepository,
+                          TestSuiteRepository testSuiteRepository,
+                          UserRepository userRepository) {
+        this.testRunRepository = testRunRepository;
+        this.testResultRepository = testResultRepository;
+        this.testSuiteRepository = testSuiteRepository;
+        this.userRepository = userRepository;
+    }
+
+    @Transactional
+    public TestRunResponse startTestRunFromSuite(Integer suiteId, CreateTestRunRequest request) {
+        TestSuite testSuite = testSuiteRepository.findById(suiteId)
+                .orElseThrow(() -> new ResourceNotFoundException("TestSuite not found with id: " + suiteId));
+
+        // ... (rest of the method is unchanged)
+        TestRun testRun = new TestRun();
+        testRun.setName(request.getName());
+        testRun.setStatus(TestRunStatus.NOT_STARTED);
+        testRun.setProject(testSuite.getProject());
+
+        List<TestResult> testResults = testSuite.getTestCases().stream()
+                .map(testCase -> {
+                    TestResult result = new TestResult();
+                    result.setStatus(TestResultStatus.NOT_RUN);
+                    result.setTitle(testCase.getTitle());
+                    result.setDescription(testCase.getDescription());
+                    result.setSteps(testCase.getSteps());
+                    result.setExpectedResult(testCase.getExpectedResult());
+                    result.setTestRun(testRun);
+                    return result;
+                }).collect(Collectors.toList());
+
+        testRun.setTestResults(testResults);
+        TestRun savedTestRun = testRunRepository.save(testRun);
+        return convertToResponse(savedTestRun);
+    }
+
+    public TestRunResponse assignTestRun(Integer runId, Integer userId) {
+        TestRun testRun = testRunRepository.findById(runId)
+                .orElseThrow(() -> new ResourceNotFoundException("TestRun not found with id: " + runId));
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+
+        testRun.setAssignee(user);
+        TestRun savedTestRun = testRunRepository.save(testRun);
+        return convertToResponse(savedTestRun);
+    }
+
+    public TestRunResponse getTestRunDetails(Integer runId) {
+        TestRun testRun = testRunRepository.findById(runId)
+                .orElseThrow(() -> new ResourceNotFoundException("TestRun not found with id: " + runId));
+        return convertToResponse(testRun);
+    }
+
+    @Transactional
+    public TestResultResponse updateTestResult(Integer resultId, UpdateTestResultRequest request) {
+        TestResult testResult = testResultRepository.findById(resultId)
+                .orElseThrow(() -> new ResourceNotFoundException("TestResult not found with id: " + resultId));
+
+        testResult.setStatus(request.getStatus());
+        testResult.setComments(request.getComments());
+        TestResult savedResult = testResultRepository.save(testResult);
+
+        updateTestRunStatus(savedResult.getTestRun());
+        return convertToResultResponse(savedResult);
+    }
+
+    // ... (private helper methods are unchanged)
+    private void updateTestRunStatus(TestRun testRun) {
+        TestRun runWithResults = testRunRepository.findById(testRun.getId()).get();
+        List<TestResult> results = runWithResults.getTestResults();
+        boolean isInProgress = results.stream().anyMatch(r -> r.getStatus() != TestResultStatus.NOT_RUN);
+        boolean isCompleted = results.stream().allMatch(r -> r.getStatus() != TestResultStatus.NOT_RUN);
+
+        if (isCompleted) {
+            runWithResults.setStatus(TestRunStatus.COMPLETED);
+        } else if (isInProgress) {
+            runWithResults.setStatus(TestRunStatus.IN_PROGRESS);
+        } else {
+            runWithResults.setStatus(TestRunStatus.NOT_STARTED);
+        }
+        testRunRepository.save(runWithResults);
+    }
+
+    private TestRunResponse convertToResponse(TestRun testRun) {
+        TestRunResponse.AssigneeResponse assigneeResponse = null;
+        if (testRun.getAssignee() != null) {
+            assigneeResponse = new TestRunResponse.AssigneeResponse(
+                    testRun.getAssignee().getId(),
+                    testRun.getAssignee().getUsername()
+            );
+        }
+        List<TestResultResponse> resultResponses = testRun.getTestResults().stream()
+                .map(this::convertToResultResponse)
+                .collect(Collectors.toList());
+        return new TestRunResponse(
+                testRun.getId(),
+                testRun.getName(),
+                testRun.getStatus(),
+                testRun.getCreatedAt(),
+                testRun.getProject().getId(),
+                assigneeResponse,
+                resultResponses
+        );
+    }
+
+    private TestResultResponse convertToResultResponse(TestResult testResult) {
+        return new TestResultResponse(
+                testResult.getId(),
+                testResult.getStatus(),
+                testResult.getComments(),
+                testResult.getTitle(),
+                testResult.getDescription(),
+                testResult.getSteps(),
+                testResult.getExpectedResult()
+        );
+    }
+
+    public PagedResponse<TestRunResponse> getAllTestRuns(TestRunSearchCriteria criteria,int page,int size,String sortBy,String sortDir){
+
+        // check who is making the request
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        User currentUser = userRepository.findByUsername(currentUsername).orElseThrow(()->new RuntimeException(("User Not Found")));
+
+        //if ths user is a TESTER  we OVERWRITE whatever assigneeId they passed in the URL.
+        // We force it to be their own ID
+        if("ROLE_TESTER".equals(currentUser.getRole())){
+            criteria.setAssigneeId(currentUser.getId());
+        }
+        // 1. Create the Sort and Pageable objects
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name())
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page,size,sort);
+
+        //2. Dynamic specification
+        Specification<TestRun> spec = TestRunSpecifications.withDynamicQuery(criteria);
+
+        //3. Fetch the filtered and paginated data from db
+        Page<TestRun> testRunPage = testRunRepository.findAll(spec,pageable);
+
+        //4. Convert Entities to DTOs
+        List<TestRunResponse> content = testRunPage.getContent().stream()
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
+
+        //5. Package into custom Paged Response
+        PageInfo pageInfo = new PageInfo(
+                testRunPage.getNumber(),
+                testRunPage.getTotalPages(),
+                testRunPage.getTotalElements(),
+                testRunPage.getSize()
+        );
+
+        return new PagedResponse<>(content,pageInfo);
+
+    }
+}
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/testrun/TestRunSpecifications.java =====
+```java
+package com.testPortal.test_management_api.testrun;
+
+import com.testPortal.test_management_api.testrun.dto.TestRunSearchCriteria;
+import jakarta.persistence.criteria.Predicate;
+import org.springframework.data.jpa.domain.Specification;
+
+import java.util.ArrayList;
+import java.util.List;
+
+
+
+
+
+public class TestRunSpecifications {
+
+    public static Specification<TestRun> withDynamicQuery(TestRunSearchCriteria criteria){
+        return (root,query,criteriaBuilder)->{
+            // We create a list to hold all our WHERE conditions (predicates)
+            List<Predicate> predicates = new ArrayList<>();
+            // 1. Filter by Name (using LIKE for partial matching, and making it case-insensitive)
+            if(criteria.getName() != null && !criteria.getName().trim().isEmpty()){
+                predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("name")),"%" + criteria.getName().toLowerCase()+"%"));
+            }
+            //2. Filter by projectId
+            if(criteria.getProjectId()!=null){
+                predicates.add(criteriaBuilder.equal(root.get("project").get("id"),criteria.getProjectId()));
+            }
+            //3. Filter by status
+            if(criteria.getStatus() != null){
+                predicates.add(criteriaBuilder.equal(root.get("status"),criteria.getStatus()));
+            }
+
+            //4. Filter by Assignee Id
+            if(criteria.getAssigneeId() != null){
+                predicates.add(criteriaBuilder.equal(root.get("assignee").get("id"),criteria.getAssigneeId()));
+            }
+
+            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+        };
+    }
+}
+
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/testrun/TestRunStatus.java =====
+```java
+package com.testPortal.test_management_api.testrun;
+
+public enum TestRunStatus {
+    NOT_STARTED,
+    IN_PROGRESS,
+    COMPLETED,
+    ABORTED
+}
+
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/testsuite/dto/CreateTestSuiteRequest.java =====
+```java
+package com.testPortal.test_management_api.testsuite.dto;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import lombok.Data;
+
+@Data
+public class CreateTestSuiteRequest {
+    @NotBlank(message = "Test suite name cannot be blank.")
+    @Size(min = 3, max = 100, message = "Test suite name must be between 3 and 100 characters.")
+    private String name;
+}
+
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/testsuite/dto/TestSuiteResponse.java =====
+```java
+package com.testPortal.test_management_api.testsuite.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import java.time.LocalDateTime;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+@Data
+@AllArgsConstructor
+public class TestSuiteResponse {
+    private Integer id;
+    private String name;
+    private Integer projectId; // We include the parent project's ID for context.
+    private long totalTestCases;
+
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime createdAt;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime updatedAt;
+
+}
+
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/testsuite/TestSuite.java =====
+```java
+package com.testPortal.test_management_api.testsuite;
+
+import com.testPortal.test_management_api.project.Project;
+
+import com.testPortal.test_management_api.testcase.TestCase;
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Entity
+@Table(name = "test_suites")
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class TestSuite {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+
+    private String name;
+
+    @CreationTimestamp
+    @Column(nullable = false,updatable = false)
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    @Column(nullable = false)
+    private  LocalDateTime updatedAt;
+
+    // @ManyToOne signifies that many TestSuite entities can be associated with one Project.
+    @ManyToOne(fetch = FetchType.LAZY) // (1)
+
+    // @JoinColumn specifies the foreign key column in THIS table ("test_suites").
+    // The 'name' attribute is the name of the column that will be created: "project_id".
+    // 'referencedColumnName' is the column in the OTHER table ("projects") that this refers to, which is "id".
+
+    @JoinColumn(name = "project_id", referencedColumnName = "id", nullable = false) // (2)
+    private Project project;
+
+    @OneToMany(
+            mappedBy = "testSuite",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<TestCase> testCases;
+
+
+}
+
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/testsuite/TestSuiteController.java =====
+```java
+package com.testPortal.test_management_api.testsuite;
+
+
+import com.testPortal.test_management_api.project.dto.CreateProjectRequest;
+import com.testPortal.test_management_api.testsuite.dto.CreateTestSuiteRequest;
+import com.testPortal.test_management_api.testsuite.dto.TestSuiteResponse;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import  org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+ import com.testPortal.test_management_api.common.PagedResponse;
+
+import java.util.List;
+
+
+
+@RestController
+// IMPORTANT: The base URL for this controller is nested.
+// It means all endpoints defined here will be prefixed with "/api/projects/{projectId}".
+@RequestMapping({"/api/projects/{projectId}/testsuites","/api/testsuites"})
+public class TestSuiteController {
+    private final TestSuiteService testSuiteService;
+
+    public TestSuiteController(TestSuiteService testSuiteService){
+        this.testSuiteService=testSuiteService;
+    }
+
+    //// POST /api/projects/{projectId}/testsuites
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasRole('SUPER_ADMIN') or hasAuthority('TESTSUITE_CREATE')")
+   public TestSuiteResponse createTestSuite(@PathVariable Integer projectId,@Valid @RequestBody CreateTestSuiteRequest request){
+        return testSuiteService.createTestSuiteForProject(projectId,request);
+    }
+
+    // GET /api/projects/{projectId}/testsuites
+    @GetMapping
+    public ResponseEntity<?> getTestSuitesForProject(
+            @PathVariable Integer projectId,
+            @RequestParam(defaultValue = "false") boolean isAll,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDir
+    ) {
+        if(isAll){
+            List<TestSuiteResponse> allSuites = testSuiteService.getAllTestSuitesForProject(projectId);
+            return ResponseEntity.ok(allSuites);
+        }
+
+        else{
+            PagedResponse<TestSuiteResponse> pagedSuites = testSuiteService.getTestSuitesForProject(projectId, page, size, sortBy, sortDir);
+            // This is also valid because the method's return type is ResponseEntity.
+            return ResponseEntity.ok(pagedSuites);
+        }
+    }
+    // PUT /api/testsuites/{suiteId}
+    @PutMapping("/{suiteId}")
+    @PreAuthorize("hasRole('SUPER_ADMIN') or hasAuthority('TESTSUITE_EDIT')")
+    public TestSuiteResponse updateTestSuite(@PathVariable Integer suiteId, @Valid @RequestBody CreateTestSuiteRequest request){
+        return testSuiteService.updateTestSuite(suiteId, request);
+    }
+
+    //Delete
+    @DeleteMapping("/{suiteId}")
+    @PreAuthorize("hasRole('SUPER_ADMIN') or hasAuthority('TESTSUITE_DELETE')")
+//    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public TestSuiteResponse  deleteTestSuite(@PathVariable Integer suiteId){
+      return  testSuiteService.deleteTestSuite(suiteId);
+    }
+
+
+}
+
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/testsuite/TestSuiteRepository.java =====
+```java
+package com.testPortal.test_management_api.testsuite;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import java.util.List;
+
+@Repository
+public interface TestSuiteRepository extends JpaRepository<TestSuite,Integer> {
+
+    // Spring Data JPA is incredibly smart. By defining a method with this exact name,
+    // it will automatically generate a query that finds all TestSuite entities
+    // where the 'project' field's 'id' property matches the given projectId.
+    // SQL Equivalent: "SELECT * FROM test_suites WHERE project_id = ?"
+    List<TestSuite> findByProjectId(Integer projectId);
+
+    // CHANGE: Return Page<TestSuite> and accept Pageable
+    Page<TestSuite> findByProjectId(Integer projectId, Pageable pageable);
+
+    long countByProjectId(Integer projectId);
+
+}
+
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/testsuite/TestSuiteService.java =====
+```java
+package com.testPortal.test_management_api.testsuite;
+
+import com.testPortal.test_management_api.exception.ResourceNotFoundException;
+import com.testPortal.test_management_api.project.Project;
+import com.testPortal.test_management_api.project.ProjectRepository;
+import com.testPortal.test_management_api.project.dto.CreateProjectRequest;
+import com.testPortal.test_management_api.testsuite.dto.CreateTestSuiteRequest;
+import com.testPortal.test_management_api.testsuite.dto.TestSuiteResponse;
+
+import org.aspectj.weaver.ast.Test;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+
+import com.testPortal.test_management_api.testcase.TestCaseRepository;
+// for pagination
+import com.testPortal.test_management_api.common.PageInfo;
+ import com.testPortal.test_management_api.common.PagedResponse;
+ import org.springframework.data.domain.Page;
+ import org.springframework.data.domain.PageRequest;
+ import org.springframework.data.domain.Pageable;
+ import org.springframework.data.domain.Sort;
+
+
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+@Service
+public class TestSuiteService {
+
+    private final TestSuiteRepository testSuiteRepository;
+    private final ProjectRepository projectRepository;
+    private final TestCaseRepository testCaseRepository;
+
+    public TestSuiteService(TestSuiteRepository testSuiteRepository, ProjectRepository projectRepository,TestCaseRepository testCaseRepository) {
+        this.testSuiteRepository = testSuiteRepository;
+        this.projectRepository = projectRepository;
+        this.testCaseRepository = testCaseRepository;
+    }
+
+    /**
+     * Creates a new Test Suite and associates it with a parent Project.
+     */
+
+    public TestSuiteResponse createTestSuiteForProject(Integer projectId, CreateTestSuiteRequest request) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + projectId));
+
+        TestSuite newTestSuite = new TestSuite();
+        newTestSuite.setName(request.getName());
+        newTestSuite.setProject(project);
+        TestSuite savedTestSuite = testSuiteRepository.save(newTestSuite);
+        return convertToResponse(savedTestSuite);
+    }
+
+    /**
+     * Finds all Test Suites for a given Project ID.
+     */
+
+//    public List<TestSuiteResponse> getTestSuitesForProject(Integer projectId) {
+//        if (!projectRepository.existsById(projectId)) {
+//            throw new ResourceNotFoundException("Project not found with id: " + projectId);
+//        }
+//        return testSuiteRepository.findByProjectId(projectId).stream()
+//                .map(this::convertToResponse)
+//                .collect(Collectors.toList());
+//    }
+
+//    with pagination
+
+    public PagedResponse<TestSuiteResponse> getTestSuitesForProject(Integer projectId, int page, int size, String sortBy, String sortDir) {
+        if (!projectRepository.existsById(projectId)) {
+            throw new ResourceNotFoundException("Project not found with id: " + projectId);
+        }
+
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name())
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        // Use the new repository method that returns a Page
+        Page<TestSuite> suitesPage = testSuiteRepository.findByProjectId(projectId, pageable);
+
+        List<TestSuiteResponse> content = suitesPage.getContent().stream()
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
+
+        PageInfo pageInfo = new PageInfo(
+                suitesPage.getNumber(),
+                suitesPage.getTotalPages(),
+                suitesPage.getTotalElements(),
+                suitesPage.getSize()
+        );
+
+        return new PagedResponse<>(content, pageInfo);
+    }
+
+    public List<TestSuiteResponse> getAllTestSuitesForProject(Integer projectId){
+        if(!projectRepository.existsById(projectId)){
+            throw new ResourceNotFoundException("Project not found with id: "+projectId);
+        }
+        return testSuiteRepository.findByProjectId(projectId).stream().map(this::convertToResponse).collect(Collectors.toList());
+    }
+
+    //    update -> rename the existing testsuite
+    public TestSuiteResponse updateTestSuite(Integer suiteId, CreateTestSuiteRequest request) {
+        TestSuite existingTestSuite = testSuiteRepository.findById(suiteId)
+                .orElseThrow(() -> new ResourceNotFoundException("TestSuite not found with id: " + suiteId));
+
+        existingTestSuite.setName(request.getName());
+        TestSuite updatedSuite = testSuiteRepository.save(existingTestSuite);
+        return convertToResponse(updatedSuite);
+    }
+
+    //    Delete
+    public TestSuiteResponse deleteTestSuite(Integer suiteId) {
+        if (!testSuiteRepository.existsById(suiteId)) {
+            throw new ResourceNotFoundException("TestSuite not found with id: " + suiteId);
+        }
+        TestSuite testSuiteTodelte = testSuiteRepository.findById(suiteId).orElseThrow(() -> new ResourceNotFoundException("Test Suite with id:" + suiteId + " not exist"));
+        // 2. Before deleting, convert the entity to the DTO we want to return.
+        TestSuiteResponse response = convertToResponse(testSuiteTodelte);
+        testSuiteRepository.deleteById(suiteId);
+        return response;
+    }
+
+    // --- Helper Method for DTO Conversion ---
+
+    private TestSuiteResponse convertToResponse(TestSuite testSuite) {
+        long testCaseCount = testCaseRepository.countByTestSuiteId(testSuite.getId());
+        return new TestSuiteResponse(
+                testSuite.getId(),
+                testSuite.getName(),
+                testSuite.getProject().getId(),// Get the ID from the nested project object,
+                testCaseCount,
+                testSuite.getCreatedAt(),
+                testSuite.getUpdatedAt()
+
+        );
+    }
+
+}
+
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/user/AdminUserController.java =====
+```java
+package com.testPortal.test_management_api.user;
+
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+import com.testPortal.test_management_api.common.PagedResponse;
+
+import java.util.List;
+
+
+@RestController
+@RequestMapping("/api/admin/users")
+public class AdminUserController {
+    private final UserService userService;
+
+    public AdminUserController(UserService userService){
+        this.userService = userService;
+    }
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasRole('SUPER_ADMIN') or hasAuthority('USER_MGMT_CREATE')")
+    public AdminUserResponse createUser(@Valid @RequestBody CreateAdminUserRequest request) {
+        return userService.createAdminUser(request);
+    }
+
+    @GetMapping
+    @PreAuthorize("hasRole('SUPER_ADMIN') or hasAuthority('USER_MGMT_LIST')")
+    public PagedResponse<AdminUserResponse> getAllUsers(@RequestParam(defaultValue = "0") int page,
+                                               @RequestParam(defaultValue = "10") int size,
+                                               @RequestParam(defaultValue = "id") String sortBy,
+                                               @RequestParam(defaultValue = "desc") String sortDir) {
+        return userService.getAllAdminUsers(page, size, sortBy, sortDir);
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('SUPER_ADMIN') or hasAuthority('USER_MGMT_EDIT')")
+    public AdminUserResponse updateUser(@PathVariable Integer id, @Valid @RequestBody UpdateAdminUserRequest request) {
+        return userService.updateAdminUser(id, request);
+    }
+}
+
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/user/AdminUserResponse.java =====
+```java
+package com.testPortal.test_management_api.user;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
+public class AdminUserResponse {
+    private Integer id;
+    private String username;
+    private String firstName;
+    private String middleName;
+    private String lastName;
+    private String email;
+    private String mobile;
+    private UserStatus status;
+    private Integer roleId;
+    private String roleName;
+}
+
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/user/CreateAdminUserRequest.java =====
+```java
+package com.testPortal.test_management_api.user;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import lombok.Data;
+
+@Data
+public class CreateAdminUserRequest {
+    @NotBlank(message = "Username is required")
+    private String username;
+
+    private String firstName;
+    private String middleName;
+    private String lastName;
+    private String email;
+    private String mobile;
+
+
+    @NotBlank(message = "Password is required")
+    private String password;
+
+    @NotBlank(message = "Confirm Password is required")
+    private String confirmPassword;
+
+    @NotNull(message = "Status is required")
+    private UserStatus status;
+
+    @NotNull(message = "Role ID is required")
+    private Integer roleId;
+}
+
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/user/UpdateAdminUserRequest.java =====
+```java
+package com.testPortal.test_management_api.user;
+
+import jakarta.validation.constraints.NotNull;
+import lombok.Data;
+
+@Data
+public class UpdateAdminUserRequest {
+
+    private String firstName;
+    private String middleName;
+    private String lastName;
+    private String email;
+    private String mobile;
+
+    @NotNull(message = "Status is required")
+    private UserStatus status;
+
+    @NotNull(message = "Role ID is required")
+    private Integer roleId;
+}
+
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/user/User.java =====
+```java
+package com.testPortal.test_management_api.user;
+import com.testPortal.test_management_api.administration.Role;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+
+@Entity
+@Table(name="users")
+@Setter
+@Getter
+@NoArgsConstructor
+public class User {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+
+    @Column(nullable = false,unique = true)
+    private String username;
+
+    @Column(nullable = false)
+    private String password;
+
+//    @Column(nullable = false)
+//    private String role;
+
+    private String firstName;
+
+    private String middleName;
+
+    private String lastName;
+
+    private String email;
+
+    private String mobile;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private UserStatus status = UserStatus.ACTIVE; //default active
+
+
+    // We use EAGER fetch here because every time Spring Security looks up a user,
+    // it MUST immediately know their role to perform security checks!
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "role_id")
+    private Role role;
+
+}
+
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/user/UserController.java =====
+```java
+package com.testPortal.test_management_api.user;
+import com.testPortal.test_management_api.user.UserLookupResponse;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+
+
+@RestController
+@RequestMapping("/api/users")
+public class UserController {
+    private final UserService userService;
+
+    public UserController(UserService userService){
+        this.userService=userService;
+    }
+
+    /**
+     * Get api/users/lookup
+     */
+    @GetMapping("/lookup")
+//    @PreAuthorize("hasRole('ADMIN')")
+    public  List<UserLookupResponse>getAllUsersForLookup(){
+        return userService.getAllUserLookups();
+    }
+
+}
+
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/user/UserLookupResponse.java =====
+```java
+package com.testPortal.test_management_api.user;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
+@Data
+@AllArgsConstructor
+public class UserLookupResponse {
+    private Integer id;
+    private String userName;
+}
+
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/user/UserRepository.java =====
+```java
+package com.testPortal.test_management_api.user;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.Optional;
+
+public interface UserRepository extends JpaRepository<User,Integer> {
+    // This is a derived query method. Spring Data JPA will automatically
+    // generate the SQL to find a User entity by its 'username' field.
+    // We use Optional because a user with the given username might not exist.
+    // This method will be critical for our login process.
+    Optional<User> findByUsername(String username);
+}
+
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/user/UserService.java =====
+```java
+package com.testPortal.test_management_api.user;
+
+import com.testPortal.test_management_api.administration.Role;
+import com.testPortal.test_management_api.administration.RoleRepository;
+import com.testPortal.test_management_api.auth.RegisterRequest;
+import com.testPortal.test_management_api.common.PageInfo;
+import com.testPortal.test_management_api.common.PagedResponse;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import com.testPortal.test_management_api.user.UserLookupResponse;
+
+//pagination
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+
+import java.util.List;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+
+
+@Service
+public class UserService {
+
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final RoleRepository roleRepository;
+
+    public UserService(UserRepository userRepository,PasswordEncoder passwordEncoder,RoleRepository roleRepository){
+        this.userRepository=userRepository;
+        this.passwordEncoder=passwordEncoder;
+        this.roleRepository=roleRepository;
+    }
+    public User registerUser(RegisterRequest request){
+        //check if username already found
+        if(userRepository.findByUsername(request.getUsername()).isPresent()){
+            throw new RuntimeException("User name already exists");
+        }
+        User newUser = new User();
+        newUser.setUsername(request.getUsername());
+
+        // Hash the password before savingp
+        newUser.setPassword(passwordEncoder.encode(request.getPassword()));
+
+        Role defaultRole = roleRepository.findByRoleName("TESTER")
+                .orElseThrow(() -> new RuntimeException("Default Role not found"));
+        newUser.setRole(defaultRole);
+
+        return userRepository.save(newUser);
+    }
+
+    public List<UserLookupResponse> getAllUserLookups(){
+
+        return userRepository.findAll()
+                .stream()
+                .map(user-> new UserLookupResponse(user.getId(),user.getUsername()))
+                .collect(Collectors.toList());
+    }
+    public User getUserByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+    //create user
+    public AdminUserResponse createAdminUser(CreateAdminUserRequest request){
+        if(userRepository.findByUsername(request.getUsername()).isPresent()){
+            throw new RuntimeException("Username already exist");
+        }
+        if(!request.getPassword().equals(request.getConfirmPassword())){
+            throw new RuntimeException("Password do not match");
+        }
+        Role role = roleRepository.findById(request.getRoleId())
+                .orElseThrow(()->new RuntimeException("Role not found with Id: "+request.getRoleId()));
+
+        User user = new User();
+        user.setUsername(request.getUsername());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setFirstName(request.getFirstName());
+        user.setMiddleName(request.getMiddleName());
+        user.setLastName(request.getLastName());
+        user.setEmail(request.getEmail());
+        user.setMobile(request.getMobile());
+        user.setStatus(request.getStatus());
+        user.setRole(role);
+
+        User savedUser = userRepository.save(user);
+        return convertToAdminResponse(savedUser);
+    }
+
+    //update user details
+    public AdminUserResponse updateAdminUser(Integer id, UpdateAdminUserRequest request){
+        User user = userRepository.findById(id)
+                .orElseThrow(()->new RuntimeException("User not found with id: "+id));
+
+        Role role = roleRepository.findById(request.getRoleId())
+                .orElseThrow(()-> new RuntimeException("Role not found with id: "+request.getRoleId()));
+        user.setFirstName(request.getFirstName());
+        user.setMiddleName(request.getMiddleName());
+        user.setLastName(request.getLastName());
+        user.setEmail(request.getEmail());
+        user.setMobile(request.getMobile());
+        user.setStatus(request.getStatus());
+        user.setRole(role);
+
+        User updatedUser = userRepository.save(user);
+        return convertToAdminResponse(updatedUser);
+    }
+
+    //get all user
+//    public List<AdminUserResponse> getAllAdminUsers(){
+//        return userRepository.findAll().stream()
+//                .map(this::convertToAdminResponse)
+//                .collect(Collectors.toList());
+//    }
+
+    public PagedResponse<AdminUserResponse> getAllAdminUsers(int page, int size,String sortBy,String sortDir){
+        //sorting
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name())
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<User> usersPage = userRepository.findAll(pageable);
+
+        List<AdminUserResponse> content = usersPage.getContent().stream()
+                .map(this::convertToAdminResponse)
+                .collect(Collectors.toList());
+
+        // 5. Package the pagination metadata
+        PageInfo pageInfo = new PageInfo(
+                usersPage.getNumber(),
+                usersPage.getTotalPages(),
+                usersPage.getTotalElements(),
+                usersPage.getSize()
+        );
+
+        // 6. Return the combined response!
+        return new PagedResponse<>(content, pageInfo);
+    }
+
+
+    // Helper method
+    private AdminUserResponse convertToAdminResponse(User user) {
+        return new AdminUserResponse(
+                user.getId(), user.getUsername(), user.getFirstName(),
+                user.getMiddleName(), user.getLastName(), user.getEmail(),
+                user.getMobile(), user.getStatus(),
+                user.getRole().getId(), user.getRole().getRoleName()
+        );
+    }
+}
+
+```
+
+===== FILE: src/main/java/com/testPortal/test_management_api/user/UserStatus.java =====
+```java
+package com.testPortal.test_management_api.user;
+
+public enum UserStatus {
+    ACTIVE,
+    INACTIVE
+}
+
+```
+
+===== FILE: src/main/resources/application-prod.properties =====
+```properties
+# ===============================================
+# PRODUCTION DATABASE (NEON POSTGRES)
+# ===============================================
+# We use ${VAR_NAME} to read these from Render's settings later
+spring.datasource.url=${DB_URL}
+spring.datasource.username=${DB_USERNAME}
+spring.datasource.password=${DB_PASSWORD}
+spring.datasource.driver-class-name=org.postgresql.Driver
+
+# JPA Configuration for Postgres
+spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=false
+
+# ===============================================
+# JWT CONFIGURATION
+# ===============================================
+app.jwt.secret=${JWT_SECRET}
+app.jwt.expiration-ms=86400000
+```
+
+===== FILE: src/main/resources/application.properties =====
+```properties
+spring.application.name=test-management-api
+
+# ===============================================
+# H2 DATABASE CONFIGURATION
+# ===============================================
+
+## This is the connection URL for the H2 in-memory database.
+## "testdb" will be the name of our database.
+#spring.datasource.url=jdbc:h2:mem:testdb
+#
+## The username for the H2 database. 'sa' is the standard default.
+#spring.datasource.username=sa
+#
+## The password for the H2 database. We can leave it blank for H2.
+#spring.datasource.password=
+#
+## This tells Spring Boot which driver to use to talk to the database.
+#spring.datasource.driverClassName=org.h2.Driver
+#
+#
+## ===============================================
+## H2 CONSOLE CONFIGURATION
+## ===============================================
+#
+## This enables the web-based H2 console.
+#spring.h2.console.enabled=true
+#
+## This sets the URL where we can access the console.
+## It's good practice to change this from the default '/h2-console' for security.
+#spring.h2.console.path=/h2-ui
+
+
+#=========================================
+#MYSQL CONFIGUATION
+spring.datasource.url=jdbc:mysql://localhost:3306/testportal_db?createDatabaseIfNotExist=true
+spring.datasource.username=root
+spring.datasource.password=root
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+spring.jpa.database-platform=org.hibernate.dialect.MySQLDialect
+# ===============================================
+# JPA (DATABASE MAPPING) CONFIGURATION
+# ===============================================
+
+# This line tells JPA (through Hibernate) to automatically create, and update
+# our database tables based on our @Entity classes.
+# This is incredibly useful for development.
+spring.jpa.hibernate.ddl-auto=update
+
+
+# This will show the actual SQL queries that JPA is running in the console logs.
+# It's very helpful for debugging and learning.
+spring.jpa.show-sql=true
+
+
+#Jwt
+app.jwt.secret=S3cr3tK3yF0rT3stM4n4g3m3ntP0rt4lV3ryL0ngAndS3cur3Ind33d1234567890!@#
+
+# Expiration time for the JWT in milliseconds. 86400000ms = 24 hours.
+app.jwt.expiration-ms=86400000
+
+#Google auth token
+app.google.client-id=713000365254-jo55s5h614h6g4f5vr3rpob3atvi9vb9.apps.googleusercontent.com
+```
+
+===== FILE: src/test/java/com/testPortal/test_management_api/TestManagementApiApplicationTests.java =====
+```java
+package com.testPortal.test_management_api;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+@SpringBootTest
+class TestManagementApiApplicationTests {
+
+	@Test
+	void contextLoads() {
+	}
+
+}
+
+```
+

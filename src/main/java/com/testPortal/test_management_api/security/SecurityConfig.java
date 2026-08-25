@@ -27,10 +27,14 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final CustomUserDetailsService customUserDetailsService;
+    private final DynamicModuleAuthorizationManager dynamicAuthManager;
 
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter, CustomUserDetailsService customUserDetailsService) {
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
+                          CustomUserDetailsService customUserDetailsService,
+                          DynamicModuleAuthorizationManager dynamicAuthManager) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.customUserDetailsService = customUserDetailsService;
+        this.dynamicAuthManager = dynamicAuthManager;
     }
 
     @Bean
@@ -55,17 +59,19 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // 1. ENABLE CORS HERE
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                // 2. Disable CSRF (since we use JWTs)
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        // Allow Login/Register and H2 Console
-                        .requestMatchers("/h2-ui/**", "/api/auth/**", "/v3/api-docs/**",     // <--- ADDED: OpenAPI JSON data
-                                "/swagger-ui/**",      // <--- ADDED: Swagger UI HTML pages
-                                "/swagger-ui.html" ).permitAll()
-                        // Protect everything else
-                        .anyRequest().authenticated()
+                        // Public endpoints
+                        .requestMatchers(
+                                "/h2-ui/**",
+                                "/api/auth/**",
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html"
+                        ).permitAll()
+                        // All other endpoints authorized dynamically via Database Module Permissions!
+                        .anyRequest().access(dynamicAuthManager)
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider());
@@ -78,25 +84,23 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // --- 3. DEFINE CORS RULES ---
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // Allow requests from your Angular App
-        configuration.setAllowedOrigins(List.of("http://localhost:4200","https://test-management-n3vjxx7sa-diwakar-2112s-projects.vercel.app/","https://69ad2c73547b70df8e1305b5--qa-test-lodge.netlify.app/","https://qa-test-lodge.netlify.app/"));
+        configuration.setAllowedOrigins(List.of(
+                "http://localhost:4200",
+                "https://test-management-n3vjxx7sa-diwakar-2112s-projects.vercel.app/",
+                "https://69ad2c73547b70df8e1305b5--qa-test-lodge.netlify.app/",
+                "https://qa-test-lodge.netlify.app/"
+        ));
 
-        // Allow these HTTP methods
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-
-        // Allow the Authorization header (where we send the JWT)
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
-
-        // Allow credentials (cookies/auth headers)
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration); // Apply to ALL endpoints
+        source.registerCorsConfiguration("/**", configuration);
         return source;
     }
 }
