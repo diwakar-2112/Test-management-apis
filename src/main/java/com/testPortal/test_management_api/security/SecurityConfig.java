@@ -70,6 +70,7 @@ public class SecurityConfig {
                                 "/swagger-ui/**",
                                 "/swagger-ui.html"
                         ).permitAll()
+                        .requestMatchers("/api/lookups/**").authenticated()
                         // All other endpoints authorized dynamically via Database Module Permissions!
                         .anyRequest().access(dynamicAuthManager)
                 )
