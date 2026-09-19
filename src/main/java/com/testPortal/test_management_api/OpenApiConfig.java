@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
+import io.swagger.v3.oas.annotations.servers.Server;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
@@ -16,6 +17,8 @@ import org.springframework.context.annotation.Configuration;
                 version = "1.0",
                 description = "Documentation for Test Management Portal API"
         ),
+        // Tells Swagger to use relative URLs so it always uses HTTPS!
+        servers = @Server(url = "/", description = "Default Server URL"),
         // This tells Swagger that every endpoint requires this security scheme by default
         security = @SecurityRequirement(name = "bearerAuth")
 )
