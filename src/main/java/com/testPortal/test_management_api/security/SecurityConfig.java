@@ -93,7 +93,8 @@ public class SecurityConfig {
                 "https://test-management-n3vjxx7sa-diwakar-2112s-projects.vercel.app/",
                 "https://69ad2c73547b70df8e1305b5--qa-test-lodge.netlify.app/",
                 "https://qa-test-lodge.netlify.app/",
-                "http://qa-console-ui.s3-website-us-east-1.amazonaws.com/"
+                "http://qa-console-ui.s3-website-us-east-1.amazonaws.com/",
+                "https://qa-console.in/"
         ));
 
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
